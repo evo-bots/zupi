@@ -1,0 +1,6 @@
+bin/
+gen/
+node_modules/
+.hmake
+.hmakerc
+*.log

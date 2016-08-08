@@ -1,0 +1,25 @@
+{
+  "name": "zpi1-robot",
+  "description": "ZuPi robot zpi1 device",
+  "version": "0.0.1",
+  "author": "EaseWay <easeway@gmail.com>",
+  "main": "./app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evo-bots/zupi"
+  },
+  "engines": {
+    "node": ">=4",
+    "npm": ">=2"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "johnny-five": "^0.9.62",
+    "tbus": "0.0.1-dev1",
+    "tbus-five": "evo-bots/tbus-five"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  }
+}
