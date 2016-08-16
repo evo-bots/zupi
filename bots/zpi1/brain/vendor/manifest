@@ -1,0 +1,78 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/MichaelTJones/walk",
+			"repository": "https://github.com/MichaelTJones/walk",
+			"revision": "3af09438b0ab0e8f296410bfa646a7e635ea1fc0",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/howeyc/gopass",
+			"repository": "https://github.com/howeyc/gopass",
+			"revision": "b63a7d07e65df376d14e2d72907a93d4847dffe4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-colorable",
+			"repository": "https://github.com/mattn/go-colorable",
+			"revision": "ed8eb9e318d7a84ce5915b495b7d35e0cfe7b5a8",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-isatty",
+			"repository": "https://github.com/mattn/go-isatty",
+			"revision": "66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/ansi",
+			"repository": "https://github.com/mgutz/ansi",
+			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/logxi",
+			"repository": "https://github.com/mgutz/logxi",
+			"revision": "7d364cab682d1b7b9063a3293c9e8c3087194940",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/minimist",
+			"repository": "https://github.com/mgutz/minimist",
+			"revision": "39eb8cf573ca29344bd7d7e6ba4d7febdebd37a9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/str",
+			"repository": "https://github.com/mgutz/str",
+			"revision": "968bf66e3da857419e4f6e71b2d5c9ae95682dc4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/to",
+			"repository": "https://github.com/mgutz/to",
+			"revision": "2a0bcba0661696e339461f5efb2273f4459dd1b9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/nozzle/throttler",
+			"repository": "https://github.com/nozzle/throttler",
+			"revision": "d9b45f19996c645d38c9266d1f5cf1990e930119",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "6575f7ea326e67d12b77872ff66f5ea15f8aefad",
+			"branch": "master",
+			"path": "/ssh/terminal"
+		},
+		{
+			"importpath": "gopkg.in/godo.v2",
+			"repository": "https://gopkg.in/godo.v2",
+			"revision": "b5fd2f0bef1ebe832e628cfad18ab1cc707f65a1",
+			"branch": "master"
+		}
+	]
+}

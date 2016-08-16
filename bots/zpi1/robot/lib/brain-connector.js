@@ -8,39 +8,54 @@ const CAST_INTERVAL = 5000;
 
 class BrainConnector extends EventEmitter {
     constructor(name) {
+        super();
         this.name = name;
-        this._sock = dgram.createSocket('udp4');
-        this._sock.setBroadcast(true);
+        this._castBuf = new Buffer(this.name)
     }
 
     connect(done) {
-        this._sock.bind(PORT, (err) => {
-            done(err);
+        this.stop();
+        this._sock = dgram.createSocket('udp4');
+        this._sock.bind((err) => {
             if (err == null) {
+                this._sock.setBroadcast(true);
                 this._sock.on('message', (msg, rinfo) => this._onMessage(msg, rinfo));
                 setImmediate(() => this._startBroadcast());
             }
+            done(err);
         });
+        return this;
     }
 
     stop() {
-        this._sock.close();
+        if (this._timer) {
+            clearInterval(this._timer);
+            delete this._timer;
+        }
+        if (this._sock) {
+            this._sock.close();
+            delete this._sock;
+        }
+        return this;
     }
 
     _startBroadcast() {
-        this._castBuf = new Buffer(this.name)
-        this._timer = setInterval(() => this._broadcast(), CAST_INTERVAL);
+        if (this._sock) {
+            this._timer = setInterval(() => this._broadcast(), CAST_INTERVAL);
+        }
     }
 
     _broadcast() {
-        this._sock.send(this._castBuf, 0, this._castBuf.length, PORT, '255.255.255.255');
+        if (this._sock) {
+            this._sock.send(this._castBuf, 0, this._castBuf.length, PORT, '255.255.255.255');
+        }
     }
 
     _onMessage(msg, rinfo) {
         this.emit('offer', {
             name: msg.toString(),
             host: rinfo.address,
-            port: PORT
+            port: rinfo.port
         });
     }
 }

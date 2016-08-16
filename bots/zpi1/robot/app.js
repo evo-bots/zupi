@@ -1,7 +1,7 @@
 'use strict';
 
 const net = require('net');
-
+const debug = require('debug');
 const five  = require('johnny-five');
 const tbus  = require('tbus');
 const logic = require('tbus-five');
@@ -16,72 +16,94 @@ const ID_MOTOR_R = 0x11;
 const ID_SERVO_P = 0x20;
 const ID_SERVO_T = 0x21;
 
-var board = new five.Board({
-    port: '/dev/ttyAMA0'
-});
+class App {
+    constructor() {
+        this.log = debug(NAME);
+        this._board = new five.Board({
+            port: '/dev/ttyAMA0',
+            repl: false,
+            debug: false
+        });
+        this._board
+            .on('ready', () => this._start())
+            .on('error', (err) => this._boardError(err));
+    }
 
-board.on('ready', () => {
-    let bus = new tbus.Bus();
-
-    bus
-        .plug(
-            new tbus.LEDDev(
-                new logic.LED(
-                    new five.Led(13),
-                ),
-                { id: ID_LED }
+    _start() {
+        this.log('assembling board');
+        this._bus = new tbus.Bus();
+        this._bus
+            .plug(
+                new tbus.LEDDev(
+                    new logic.LED(
+                        new five.Led(13)
+                    ),
+                    { id: ID_LED }
+                )
             )
-        )
-        .plug(
-            new tbus.MotorDev(
-                new logic.Motor(
-                    new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M1)
-                ),
-                { id: ID_MOTOR_L }
+            .plug(
+                new tbus.MotorDev(
+                    new logic.Motor(
+                        new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M1)
+                    ),
+                    { id: ID_MOTOR_L }
+                )
             )
-        )
-        .plug(
-            new tbus.MotorDev(
-                new logic.Motor(
-                    new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M2)
-                ),
-                { id: ID_MOTOR_R }
+            .plug(
+                new tbus.MotorDev(
+                    new logic.Motor(
+                        new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M2)
+                    ),
+                    { id: ID_MOTOR_R }
+                )
             )
-        )
-        .plug(
-            new tbus.ServoDev(
-                new logic.Servo(
-                    new five.Servo({controller: 'PCA9685', pin: 0})
-                ),
-                { id: ID_SERVO_P }
+            .plug(
+                new tbus.ServoDev(
+                    new logic.Servo(
+                        new five.Servo({controller: 'PCA9685', pin: 0})
+                    ),
+                    { id: ID_SERVO_P }
+                )
             )
-        )
-        .plug(
-            new tbus.ServoDev(
-                new logic.Servo(
-                    new five.Servo({controller: 'PCA9685', pin: 1})
-                ),
-                { id: ID_SERVO_T }
-            )
-        );
-
-    let bc = new BrainConnector(NAME);
-    bc
-        .on('offer', (offer) => {
-            let sock = net.connect(offer.port, offer.host);
-            sock
-                .on('connect', () => {
-                    bc.stop();
-                    sock.pipe(bus.hostStream());
-                    bus.hostStream().pipe(sock);
-                })
-                .on('error', (err) => {
-                    console.error(err);
+            .plug(
+                new tbus.ServoDev(
+                    new logic.Servo(
+                        new five.Servo({controller: 'PCA9685', pin: 1})
+                    ),
+                    { id: ID_SERVO_T }
+                )
+            );
+        this._busDev = new tbus.BusDev(this._bus);
+        this._port = new tbus.RemoteBusPort(this._busDev,
+            tbus.SocketConnector(() => net.connect(this._offer.port, this._offer.host)));
+        this._brainConn = new BrainConnector(NAME);
+        this._port
+            .on('connected', () => this.log("connected"))
+            .on('error', (err) => {
+                this.log("connect error %s", err.message);
+                this._brainConn.connect((err) => {
+                    if (err) {
+                        console.error(err);
+                    }
                 });
-        })
-        .connect((err) => {
-            if (err != nil) {
+            });
+        this._brainConn.on('offer', (offer) => {
+            this.log("offer %s:%d", offer.host, offer.port);
+            this._offer = offer;
+            this._port.connect();
+            this._brainConn.stop();
+        });
+        this._brainConn.connect((err) => {
+            if (err != null) {
                 console.error(err);
             }
         });
-});
+    }
+
+    _boardError(err) {
+        console.error(err.message);
+        process.exit(1);
+    }
+}
+
+new App();
