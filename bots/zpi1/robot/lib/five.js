@@ -1,6 +1,7 @@
 'use strict';
 
-const five = require('tbus-five');
+const five = require('johnny-five');
+const tbus = require('tbus-five');
 
 class Builder {
     build(done) {
@@ -15,26 +16,27 @@ class Builder {
     }
 
     _start(done) {
+        this._led = new five.Led(13);
         let logics = {
-            led: new five.Led(13),
+            led: new tbus.LED(this._led),
             motors: {
-                left: new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M1),
-                right: new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M2)
+                left: new tbus.Motor(new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M1)),
+                right: new tbus.Motor(new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M2))
             },
             servos: {
-                pan: new five.Servo({controller: 'PCA9685', pin: 0}),
-                tilt: new five.Servo({controller: 'PCA9685', pin: 1})
+                pan: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 0})),
+                tilt: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 1}))
             },
             indicator: {}
         };
 
         logics.indicator.flash = (delay) => {
-            logics.led.blink(delay);
+            this._led.blink(delay);
         };
 
         logics.indicator.on = (on) => {
-            logics.led.stop();
-            (on ? logics.led.on() : logics.led.off());
+            this._led.stop();
+            (on ? this._led.on() : this._led.off());
         };
 
         done(null, logics);
