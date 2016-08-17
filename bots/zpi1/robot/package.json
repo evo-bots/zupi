@@ -16,7 +16,7 @@
   "dependencies": {
     "debug": "^2.2.0",
     "johnny-five": "^0.9.62",
-    "tbus": "0.0.1-dev2",
+    "tbus": "0.0.1-dev3",
     "tbus-five": "evo-bots/tbus-five"
   },
   "devDependencies": {

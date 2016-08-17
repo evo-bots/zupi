@@ -32,11 +32,10 @@ func (b *Brain) Run() error {
 	b.logger.Info("listening", "addr", b.listener.Addr())
 	go b.cast()
 	go b.host.Run()
-	for {
-		dev := <-b.host.AcceptChan()
-		master := NewMaster(dev)
-		go master.Run()
-	}
+	dev := <-b.host.AcceptChan()
+	NewMaster(dev).Run()
+	b.listener.Close()
+	return nil
 }
 
 func (b *Brain) cast() {
@@ -81,7 +80,7 @@ const (
 
 type Master struct {
 	logger    log.Logger
-	device    *tbus.StreamDevice
+	device    tbus.RemoteDevice
 	master    tbus.Master
 	busctl    *tbus.BusCtl
 	ledctl    *tbus.LEDCtl
@@ -90,7 +89,7 @@ type Master struct {
 	servoTilt *tbus.ServoCtl
 }
 
-func NewMaster(device *tbus.StreamDevice) *Master {
+func NewMaster(device tbus.RemoteDevice) *Master {
 	m := &Master{
 		logger: log.New("master"),
 		device: device,
@@ -107,6 +106,7 @@ func (m *Master) Run() {
 	if err != nil {
 		m.logger.Error("run failed", "err", err)
 	}
+	m.device.Close()
 }
 
 func (m *Master) run() error {
@@ -151,9 +151,10 @@ func (m *Master) run() error {
 		return fmt.Errorf("device map mismatch %02x (expect %02x)", bits, CtlBits)
 	}
 	ledOn := true
-	for {
+	for i := 0; i < 10; i++ {
 		m.ledctl.SetOn(ledOn)
 		time.Sleep(500 * time.Millisecond)
 		ledOn = !ledOn
 	}
+	return nil
 }
