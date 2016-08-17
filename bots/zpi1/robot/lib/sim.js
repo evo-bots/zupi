@@ -4,7 +4,7 @@ const debug = require('debug')
 
 class SimDevBase {
     constructor(name) {
-        this.log = debug(name);
+        this.log = debug('zpi1.robot.dev.'+name);
     }
 
     setDevice(dev) {

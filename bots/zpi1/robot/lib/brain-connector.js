@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 const dgram = require('dgram');
 
 const PORT = 6565;
-const CAST_INTERVAL = 5000;
+const CAST_INTERVAL = 1000;
 
 class BrainConnector extends EventEmitter {
     constructor(name) {
@@ -20,7 +20,7 @@ class BrainConnector extends EventEmitter {
             if (err == null) {
                 this._sock.setBroadcast(true);
                 this._sock.on('message', (msg, rinfo) => this._onMessage(msg, rinfo));
-                setImmediate(() => this._startBroadcast());
+                this._startBroadcast();
             }
             done(err);
         });
@@ -41,6 +41,7 @@ class BrainConnector extends EventEmitter {
 
     _startBroadcast() {
         if (this._sock) {
+            this._broadcast();
             this._timer = setInterval(() => this._broadcast(), CAST_INTERVAL);
         }
     }

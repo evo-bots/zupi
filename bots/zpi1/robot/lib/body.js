@@ -46,6 +46,9 @@ class Body {
             .on('error', (err) => {
                 log("connect error %s", err.message);
                 this._connectBrain();
+            })
+            .on('disconnected', () => {
+                this._connectBrain();
             });
         this._brainConn.on('offer', (offer) => {
             log("offer %s:%d", offer.host, offer.port);
