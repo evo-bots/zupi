@@ -7,8 +7,6 @@ description: Robot zpi1
 targets:
   deps-zpi1-go:
     description: restore Go vendor
-    after:
-      - toolchain
     watches:
       - brain/vendor/manifest
     workdir: brain
@@ -17,8 +15,6 @@ targets:
 
   deps-zpi1-node:
     description: install npm packages
-    after:
-      - toolchain
     watches:
       - robot/package.json
     workdir: robot
@@ -30,8 +26,6 @@ targets:
 
   gen-zpi1-go:
     description: generate Go code
-    after:
-      - toolchain
     watches:
       - proto
     cmds:
@@ -39,8 +33,6 @@ targets:
 
   gen-zpi1-node:
     description: generate Node.js code
-    after:
-      - toolchain
     watches:
       - proto
     cmds:

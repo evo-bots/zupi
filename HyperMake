@@ -5,12 +5,6 @@ name: zupi
 description: Robot project putting Raspberry Pi on Zumo
 
 targets:
-  toolchain:
-    description: build docker image containing all tools
-    watches:
-      - hack/toolchain
-    build: hack/toolchain
-
   deps:
     description: install dependencies
     after:
@@ -41,5 +35,5 @@ includes:
 
 settings:
   docker:
-    image: zupi-tools
+    image: robotalks/tbus-toolchain:latest
     src-volume: /go/src/github.com/evo-bots/zupi
