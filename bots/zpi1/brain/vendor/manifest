@@ -8,6 +8,26 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/robotalks/tbus/go/tbus",
+			"repository": "https://github.com/robotalks/tbus",
+			"revision": "e4c25e67a3b29c70e958cc1e422c8620d78f45c2",
+			"branch": "master",
+			"path": "/go/tbus"
+		},
+		{
+			"importpath": "github.com/golang/protobuf",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "f592bd283e9ef86337a432eb50e592278c3d534d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/golang/protobuf/proto/testdata",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "f592bd283e9ef86337a432eb50e592278c3d534d",
+			"branch": "master",
+			"path": "/proto/testdata"
+		},
+		{
 			"importpath": "github.com/howeyc/gopass",
 			"repository": "https://github.com/howeyc/gopass",
 			"revision": "b63a7d07e65df376d14e2d72907a93d4847dffe4",
@@ -59,6 +79,12 @@
 			"importpath": "github.com/nozzle/throttler",
 			"repository": "https://github.com/nozzle/throttler",
 			"revision": "d9b45f19996c645d38c9266d1f5cf1990e930119",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/willf/bitset",
+			"repository": "https://github.com/willf/bitset",
+			"revision": "1ea0245d2bc8ce44623f24a1ae162beb06ad8cd6",
 			"branch": "master"
 		},
 		{

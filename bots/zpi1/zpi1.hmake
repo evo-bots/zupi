@@ -1,0 +1,62 @@
+---
+format: hypermake.v0
+
+name: zpi1
+description: Robot zpi1
+
+targets:
+  deps-zpi1-go:
+    description: restore Go vendor
+    after:
+      - toolchain
+    watches:
+      - brain/vendor/manifest
+    workdir: brain
+    cmds:
+      - gvt restore
+
+  deps-zpi1-node:
+    description: install npm packages
+    after:
+      - toolchain
+    watches:
+      - robot/package.json
+    workdir: robot
+    cmds:
+      - npm install
+
+  deps-zpi1:
+    after: ['dep-zpi1-*']
+
+  gen-zpi1-go:
+    description: generate Go code
+    after:
+      - toolchain
+    watches:
+      - proto
+    cmds:
+      - tbus-proto-gen -lang=go -out=brain -from=proto zupi
+
+  gen-zpi1-node:
+    description: generate Node.js code
+    after:
+      - toolchain
+    watches:
+      - proto
+    cmds:
+      - mkdir -p robot/gen
+      - tbus-proto-gen -lang=js -out=robot/gen -from=proto zupi
+
+  gen-zpi1:
+    after: ['gen-zpi1-*']
+
+  build-zpi1-brain:
+    description: build zpi1 brain
+    after:
+      - gen-zpi1-go
+      - deps-zpi1-go
+    watches:
+      - 'brain/**/**/*.go'
+    workdir: brain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-go.sh zpi1-brain ./zpi1-brain

@@ -3,11 +3,12 @@ package brain
 import (
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
-	tbus "github.com/evo-bots/tbus/go/tbus"
 	log "github.com/mgutz/logxi/v1"
+	tbus "github.com/robotalks/tbus/go/tbus"
 )
 
 // Port is listening port
@@ -25,7 +26,7 @@ func NewBrain() (*Brain, error) {
 		return nil, err
 	}
 	host := tbus.NewRemoteDeviceHost(listener)
-	return &Brain{logger: log.New("brain"), host: host, listener: listener}, nil
+	return &Brain{logger: log.NewLogger(log.NewConcurrentWriter(os.Stderr), "zpi1.robot.brain"), host: host, listener: listener}, nil
 }
 
 func (b *Brain) Run() error {

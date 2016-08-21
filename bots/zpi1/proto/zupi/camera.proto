@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "tbus/common/options.proto";
+
+package zupi;
+
+message RstpEndpoint {
+    string host = 1;
+    uint32 port = 2;
+}
+
+message CameraState {
+    enum Mode {
+        Off     = 0;
+        Video   = 1;
+        Capture = 2;
+    }
+    Mode mode = 1;
+    RstpEndpoint rstp = 100;
+}
+
+service RstpCamera {
+    option (class_id) = 0xFEA1;
+    rpc GetState(google.protobuf.Empty) returns (CameraState) { option (index) = 1; }
+    rpc SetState(CameraState) returns (CameraState) { option (index) = 2; }
+}

@@ -1,0 +1,45 @@
+---
+format: hypermake.v0
+
+name: zupi
+description: Robot project putting Raspberry Pi on Zumo
+
+targets:
+  toolchain:
+    description: build docker image containing all tools
+    watches:
+      - hack/toolchain
+    build: hack/toolchain
+
+  deps:
+    description: install dependencies
+    after:
+      - 'deps-*'
+
+  generate:
+    description: generate code
+    after:
+      - 'gen-*'
+
+  build:
+    description: build components
+    after:
+      - 'build-*'
+
+  pack:
+    description: package artifacts
+    after:
+      - 'pack-*'
+
+  clean:
+    description: clean intermediate files
+    after:
+      - 'clean-*'
+
+includes:
+  - bots/**/**/*.hmake
+
+settings:
+  docker:
+    image: zupi-tools
+    src-volume: /go/src/github.com/evo-bots/zupi
