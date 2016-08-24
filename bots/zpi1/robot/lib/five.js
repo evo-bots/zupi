@@ -2,6 +2,7 @@
 
 const five = require('johnny-five');
 const tbus = require('tbus-five');
+const RstpCamera = require('./camera.js');
 
 class Builder {
     build(done) {
@@ -27,6 +28,7 @@ class Builder {
                 pan: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 0})),
                 tilt: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 1}))
             },
+            camera: new RstpCamera(),
             indicator: {}
         };
 

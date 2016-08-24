@@ -52,3 +52,19 @@ targets:
     workdir: brain
     cmds:
       - $HMAKE_PROJECT_DIR/hack/build-go.sh zpi1-brain ./zpi1-brain
+
+  build-zpi1-vision:
+    description: build zpi1 vision analyzer
+    watches:
+      - vision/inc
+      - vision/src
+      - vision/CMakeLists.txt
+      - vision/cmake
+    image: dockcross/linux-x64:latest
+    workdir: vision
+    cmds:
+      - mkdir -p _build
+      - cd _build && cmake .. && make
+
+  build-zpi1:
+    after: ['build-zpi1-*']

@@ -1,6 +1,7 @@
 'use strict';
 
-const debug = require('debug')
+const debug = require('debug');
+const CameraState = require('../gen/zupi/camera_pb.js').CameraState;
 
 class SimDevBase {
     constructor(name) {
@@ -67,6 +68,22 @@ class Servo extends SimDevBase {
     }
 }
 
+class Camera extends SimDevBase {
+    constructor() {
+        super("camera");
+    }
+
+    getState(done) {
+        let state = new CameraState();
+        state.setMode(CameraState.Mode.OFF);
+        done(null, state);
+    }
+
+    setState(state, done) {
+        done(new Error('not supported'));
+    }
+}
+
 class Builder {
     constructor() {
         this.log = debug('builder');
@@ -83,6 +100,7 @@ class Builder {
                 pan: new Servo("P"),
                 tilt: new Servo("T")
             },
+            camera: new Camera(),
             indicator: {
                 flash: (delay) => this.log("indicator flashing %j", delay),
                 on: (on) => this.log("indicator %s", on ? 'on' : 'off')

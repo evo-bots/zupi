@@ -3,6 +3,7 @@
 const net = require('net');
 const tbus = require('tbus');
 const log = require('debug')('zpi1.robot.body');
+const RstpCameraDev = require('../gen/zupi/camera_tbusdev.js').RstpCameraDev;
 const BrainConnector = require('./brain-connector.js');
 const ID = require('./devices.js').ID;
 const NAME = require('./devices.js').NAME;
@@ -33,7 +34,8 @@ class Body {
             .plug(new tbus.MotorDev(logics.motors.left, { id: ID.MOTOR_L }))
             .plug(new tbus.MotorDev(logics.motors.right, { id: ID.MOTOR_R }))
             .plug(new tbus.ServoDev(logics.servos.pan, { id: ID.SERVO_P }))
-            .plug(new tbus.ServoDev(logics.servos.tilt, { id: ID.SERVO_T }));
+            .plug(new tbus.ServoDev(logics.servos.tilt, { id: ID.SERVO_T }))
+            .plug(new RstpCameraDev(logics.camera, { id: ID.CAMERA }));
         this._busDev = new tbus.BusDev(this._bus);
         this._port = new tbus.RemoteBusPort(this._busDev,
             tbus.SocketConnector(() => net.connect(this._offer.port, this._offer.host)));
