@@ -19,12 +19,14 @@ import (
 // Port is listening port
 const Port = 6565
 
+// Brain listens for robot connections
 type Brain struct {
 	logger   log.Logger
 	listener net.Listener
 	host     *tbus.RemoteDeviceHost
 }
 
+// NewBrain creates a brain instance
 func NewBrain() (*Brain, error) {
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(Port))
 	if err != nil {
@@ -34,6 +36,7 @@ func NewBrain() (*Brain, error) {
 	return &Brain{logger: log.NewLogger(log.NewConcurrentWriter(os.Stderr), "zpi1.robot.brain"), host: host, listener: listener}, nil
 }
 
+// Run starts the listener
 func (b *Brain) Run() error {
 	b.logger.Info("listening", "addr", b.listener.Addr())
 	go b.cast()
@@ -89,6 +92,7 @@ const (
 		CtlBitCamera
 )
 
+// Master manages device controllers
 type Master struct {
 	logger    log.Logger
 	device    tbus.RemoteDevice
@@ -98,9 +102,10 @@ type Master struct {
 	motors    []*tbus.MotorCtl
 	servoPan  *tbus.ServoCtl
 	servoTilt *tbus.ServoCtl
-	camera    *zupi.RstpCameraCtl
+	camera    *zupi.RtspCameraCtl
 }
 
+// NewMaster creates a new master
 func NewMaster(device tbus.RemoteDevice) *Master {
 	m := &Master{
 		logger: log.New("master"),
@@ -112,6 +117,7 @@ func NewMaster(device tbus.RemoteDevice) *Master {
 	return m
 }
 
+// Run starts the communication
 func (m *Master) Run() {
 	go m.device.Run()
 	err := m.run()
@@ -157,10 +163,10 @@ func (m *Master) run() error {
 				bits |= CtlBitServoT
 				m.logger.Info("servoT", "addr", info.Address)
 			}
-		case zupi.RstpCameraClassID:
+		case zupi.RtspCameraClassID:
 			switch info.DeviceId {
 			case DeviceCamera:
-				m.camera = zupi.NewRstpCameraCtl(m.master).SetAddress(info.DeviceAddress())
+				m.camera = zupi.NewRtspCameraCtl(m.master).SetAddress(info.DeviceAddress())
 				bits |= CtlBitCamera
 				m.logger.Info("camera", "addr", info.Address)
 			}
@@ -229,11 +235,12 @@ func (m *Master) visionAnalyze() error {
 	state, err := m.camera.SetState(&zupi.CameraState{
 		Mode: zupi.CameraState_Video,
 	})
-	if err != nil || state.Rstp == nil {
+	if err != nil || state.Rtsp == nil {
 		return err
 	}
 
-	cmd := exec.Command("zpi1-vision", fmt.Sprintf("rstp://%s:%d", state.Rstp.Host, state.Rstp.Port))
+	cmd := exec.Command("zpi1-vision", fmt.Sprintf("rtsp://%s:%d/unicast", state.Rtsp.Host, state.Rtsp.Port))
+	m.logger.Info("vision connect", "url", cmd.Args[1])
 	cmd.Env = os.Environ()
 	cmd.Stderr = os.Stderr
 	reader, err := cmd.StdoutPipe()

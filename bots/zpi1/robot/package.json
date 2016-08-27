@@ -14,6 +14,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "js-class": "0.0.2",
+    "google-protobuf": "robotalks/google-protobuf.js",
     "debug": "2.2.0",
     "johnny-five": "0.9.62",
     "tbus": "0.0.1-dev4",

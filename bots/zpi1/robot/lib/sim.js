@@ -104,7 +104,9 @@ class Builder {
             indicator: {
                 flash: (delay) => this.log("indicator flashing %j", delay),
                 on: (on) => this.log("indicator %s", on ? 'on' : 'off')
-            }
+            },
+            reset: () => {},
+            connected: () => {},
         });
     }
 }

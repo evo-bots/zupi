@@ -44,6 +44,19 @@ targets:
       - mkdir -p robot/gen
       - tbus-proto-gen -lang=js -out=robot/gen -from=proto zupi
 
+  pack-zpi1-robot:
+    description: package zpi1 robot Node.js code
+    after:
+      - gen-zpi1-node
+    watches:
+      - robot/lib
+      - robot/*.js
+      - robot/package.json
+    workdir: /_build
+    cmds:
+      - rm -f zpi1-robot-*.tgz
+      - npm pack ../bots/zpi1/robot
+
   build-zpi1-brain:
     description: build zpi1 brain
     after:

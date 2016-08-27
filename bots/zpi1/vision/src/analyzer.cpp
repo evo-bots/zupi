@@ -57,7 +57,10 @@ int main(int argc, char* argv[]) {
             json j;
             j["size"] = { {"x", image.rows}, {"y", image.cols} };
             for (std::vector<cv::Rect>::iterator it = objs.begin(); it != objs.end(); it ++) {
-                j["objects"].push_back({ {"x", it->x}, {"y", it->y}, {"w", it->width}, {"h", it->height} });
+                j["objects"].push_back({
+                    {"type", "face"}, 
+                    {"range", { {"x", it->x}, {"y", it->y}, {"w", it->width}, {"h", it->height} } }
+                });
             }
             std::cout << j << std::endl;
         }

@@ -2,7 +2,7 @@
 
 const five = require('johnny-five');
 const tbus = require('tbus-five');
-const RstpCamera = require('./camera.js');
+const RtspCamera = require('./camera.js');
 
 class Builder {
     build(done) {
@@ -28,7 +28,7 @@ class Builder {
                 pan: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 0})),
                 tilt: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 1}))
             },
-            camera: new RstpCamera(),
+            camera: new RtspCamera(),
             indicator: {}
         };
 
@@ -39,6 +39,16 @@ class Builder {
         logics.indicator.on = (on) => {
             this._led.stop();
             (on ? this._led.on() : this._led.off());
+        };
+
+        logics.reset = () => {
+            logics.camera.off(()=>{});
+            logics.servos.pan.fiveDev.center();
+            logics.servos.tilt.fiveDev.center();
+        };
+
+        logics.connected = (socket) => {
+            logics.camera.setLocalAddress(socket.localAddress);
         };
 
         done(null, logics);

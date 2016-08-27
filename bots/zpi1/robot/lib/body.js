@@ -3,7 +3,7 @@
 const net = require('net');
 const tbus = require('tbus');
 const log = require('debug')('zpi1.robot.body');
-const RstpCameraDev = require('../gen/zupi/camera_tbusdev.js').RstpCameraDev;
+const RtspCameraDev = require('../gen/zupi/camera_tbusdev.js').RtspCameraDev;
 const BrainConnector = require('./brain-connector.js');
 const ID = require('./devices.js').ID;
 const NAME = require('./devices.js').NAME;
@@ -35,7 +35,7 @@ class Body {
             .plug(new tbus.MotorDev(logics.motors.right, { id: ID.MOTOR_R }))
             .plug(new tbus.ServoDev(logics.servos.pan, { id: ID.SERVO_P }))
             .plug(new tbus.ServoDev(logics.servos.tilt, { id: ID.SERVO_T }))
-            .plug(new RstpCameraDev(logics.camera, { id: ID.CAMERA }));
+            .plug(new RtspCameraDev(logics.camera, { id: ID.CAMERA }));
         this._busDev = new tbus.BusDev(this._bus);
         this._port = new tbus.RemoteBusPort(this._busDev,
             tbus.SocketConnector(() => net.connect(this._offer.port, this._offer.host)));
@@ -44,13 +44,15 @@ class Body {
             .on('connected', () => {
                 log("connected");
                 this._indicatorOn();
+                // HACK: wait tbus to expose connection
+                this._logics.connected(this._port._connection);
             })
             .on('error', (err) => {
                 log("connect error %s", err.message);
-                this._connectBrain();
+                this._reset();
             })
             .on('disconnected', () => {
-                this._connectBrain();
+                this._reset();
             });
         this._brainConn.on('offer', (offer) => {
             log("offer %s:%d", offer.host, offer.port);
@@ -59,7 +61,7 @@ class Body {
             this._brainConn.stop();
             this._indicatorFlash(IndicatorFast);
         });
-        this._connectBrain();
+        this._reset();
     }
 
     _startErr(err) {
@@ -74,6 +76,11 @@ class Body {
             }
         });
         this._indicatorFlash(IndicatorSlow);
+    }
+
+    _reset() {
+        this._connectBrain();
+        this._logics.reset();
     }
 
     _indicatorFlash(delay) {

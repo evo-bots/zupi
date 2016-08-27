@@ -5,7 +5,7 @@ import "tbus/common/options.proto";
 
 package zupi;
 
-message RstpEndpoint {
+message RtspEndpoint {
     string host = 1;
     uint32 port = 2;
 }
@@ -17,10 +17,10 @@ message CameraState {
         Capture = 2;
     }
     Mode mode = 1;
-    RstpEndpoint rstp = 100;
+    RtspEndpoint rtsp = 100;
 }
 
-service RstpCamera {
+service RtspCamera {
     option (class_id) = 0xFEA1;
     rpc GetState(google.protobuf.Empty) returns (CameraState) { option (index) = 1; }
     rpc SetState(CameraState) returns (CameraState) { option (index) = 2; }
