@@ -1,0 +1,47 @@
+---
+format: hypermake.v0
+
+targets:
+  get-opencv:
+    description: download opencv library
+    after:
+      - toolchain
+    workdir: /_build
+    cmds:
+      - rm -fr src/opencv && mkdir -p src/opencv
+      - curl -sSL https://github.com/opencv/opencv/archive/3.1.0.tar.gz | tar -C src/opencv --strip-components=1 -zx
+
+  build-opencv:
+    description: build opencv library
+    after:
+      - build-ffmpeg
+      - get-opencv
+    workdir: /_build
+    env:
+      - MAKE_OPTS
+    cmds:
+      - rm -fr build/opencv && mkdir -p build/opencv
+      - cd build/opencv
+      - cmake
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DBUILD_TESTS=OFF
+        -DBUILD_PERF_TESTS=OFF
+        -DBUILD_EXAMPLES=OFF
+        -DBUILD_DOCS=OFF
+        -DBUILD_JPEG=ON
+        -DBUILD_PNG=ON
+        -DBUILD_TIFF=ON
+        -DBUILD_ZLIB=ON
+        -DBUILD_JASPER=ON
+        -DBUILD_OPENEXR=ON
+        -DFFMPEG_INCLUDE_DIR=$HMAKE_PROJECT_DIR/_build/include
+        -DFFMPEG_LIB_DIR=$HMAKE_PROJECT_DIR/_build/lib
+        ../../src/opencv
+      - make $MAKE_OPTS
+      - make install DESTDIR=./_install
+      - mkdir -p $HMAKE_PROJECT_DIR/_build/share $HMAKE_PROJECT_DIR/bin
+      - cp -rf _install/usr/local/include/* $HMAKE_PROJECT_DIR/_build/include/
+      - cp -rf _install/usr/local/lib/* $HMAKE_PROJECT_DIR/_build/lib/
+      - cp -rf _install/usr/local/share/* $HMAKE_PROJECT_DIR/_build/share/
+      - cp -rf _install/usr/local/bin/* $HMAKE_PROJECT_DIR/bin/

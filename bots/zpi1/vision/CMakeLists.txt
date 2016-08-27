@@ -1,16 +1,29 @@
-cmake_minimum_required(VERSION 3.0)
-include("cmake/HunterGate.cmake")
-HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.14.26.tar.gz"
-    SHA1 "45ac03944db2bc7fc55dfceca42d89ec7fa1dca2"
-    LOCAL
-)
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 
-project(zpi1-vision)
+project(zpi1-vision CXX)
 
-hunter_add_package(OpenCV)
+set(BUILD_SHARED_LIBRARIES OFF)
+
 find_package(OpenCV REQUIRED)
+find_library(AVDEVICE_LIB avdevice)
+find_library(AVFILTER_LIB avfilter)
+find_library(AVFORMAT_LIB avformat)
+find_library(AVCODEC_LIB avcodec)
+find_library(SWSCALE_LIB swscale)
+find_library(SWRESAMPLE_LIB swresample)
+find_library(AVUTIL_LIB avutil)
 
-include_directories("inc")
+include_directories("inc" "$ENV{HMAKE_PROJECT_DIR}/_build/include")
 add_executable(zpi1-vision src/analyzer.cpp)
-target_link_libraries(zpi1-vision PRIVATE ${OpenCV_LIBS})
+set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD 11)
+set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD_REQUIRED ON)
+target_link_libraries(zpi1-vision -Wl,--start-group
+    ${OpenCV_LIBS}
+    ${AVDEVICE_LIB}
+    ${AVFILTER_LIB}
+    ${AVFORMAT_LIB}
+    ${AVCODEC_LIB}
+    ${SWSCALE_LIB}
+    ${SWRESAMPLE_LIB}
+    ${AVUTIL_LIB} 
+    -Wl,--end-group)

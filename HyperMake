@@ -5,6 +5,23 @@ name: zupi
 description: Robot project putting Raspberry Pi on Zumo
 
 targets:
+  toolchain:
+    description: build zupi toolchain
+    watches:
+      - hack/toolchain
+    build: hack/toolchain
+
+  exec:
+    description: environment for hmake -x
+    after:
+      - toolchain
+
+  root:
+    description: environment for hmake -x with root privilege
+    after:
+      - toolchain
+    user: root
+
   deps:
     description: install dependencies
     after:
@@ -31,9 +48,11 @@ targets:
       - 'clean-*'
 
 includes:
-  - bots/**/**/*.hmake
+  - '**/**/*.hmake'
 
 settings:
+  exec-target: exec
+  exec-shell: /bin/bash
   docker:
-    image: robotalks/tbus-toolchain:latest
+    image: zupi-toolchain:latest
     src-volume: /go/src/github.com/evo-bots/zupi

@@ -7,6 +7,8 @@ description: Robot zpi1
 targets:
   deps-zpi1-go:
     description: restore Go vendor
+    after:
+      - toolchain
     watches:
       - brain/vendor/manifest
     workdir: brain
@@ -15,17 +17,18 @@ targets:
 
   deps-zpi1-node:
     description: install npm packages
+    after:
+      - toolchain
     watches:
       - robot/package.json
     workdir: robot
     cmds:
       - npm install
 
-  deps-zpi1:
-    after: ['dep-zpi1-*']
-
   gen-zpi1-go:
     description: generate Go code
+    after:
+      - toolchain
     watches:
       - proto
     cmds:
@@ -33,14 +36,13 @@ targets:
 
   gen-zpi1-node:
     description: generate Node.js code
+    after:
+      - toolchain
     watches:
       - proto
     cmds:
       - mkdir -p robot/gen
       - tbus-proto-gen -lang=js -out=robot/gen -from=proto zupi
-
-  gen-zpi1:
-    after: ['gen-zpi1-*']
 
   build-zpi1-brain:
     description: build zpi1 brain
@@ -52,19 +54,38 @@ targets:
     workdir: brain
     cmds:
       - $HMAKE_PROJECT_DIR/hack/build-go.sh zpi1-brain ./zpi1-brain
+    artifacts:
+      - /bin/zpi1-brain
 
   build-zpi1-vision:
     description: build zpi1 vision analyzer
-    watches:
+    after: &vision-deps
+      - build-nlohmann-json
+      - build-ffmpeg
+    watches: &vision-src
       - vision/inc
       - vision/src
       - vision/CMakeLists.txt
       - vision/cmake
-    image: dockcross/linux-x64:latest
-    workdir: vision
+      - vision/build.sh
+    env:
+      - MAKE_OPTS
     cmds:
-      - mkdir -p _build
-      - cd _build && cmake .. && make
+      - vision/build.sh Release
+      - cp -f
+        $HMAKE_PROJECT_DIR/_build/build/vision/Release/zpi1-vision
+        $HMAKE_PROJECT_DIR/bin/
+    artifacts:
+      - /_build/build/vision/Release/zpi1-vision
+      - /bin/zpi1-vision
 
-  build-zpi1:
-    after: ['build-zpi1-*']
+  build-zpi1-vision-dbg:
+    description: build zpi1 vision analyzer DEBUG
+    after: *vision-deps
+    watches: *vision-src
+    env:
+      - MAKE_OPTS
+    cmds:
+      - vision/build.sh Debug
+    artifacts:
+      - /_build/build/vision/Debug/zpi1-vision

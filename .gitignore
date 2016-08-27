@@ -1,6 +1,7 @@
 bin/
 gen/
 node_modules/
+_build/
 .hmake
 .hmakerc
 *.log

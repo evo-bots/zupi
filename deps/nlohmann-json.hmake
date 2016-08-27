@@ -1,0 +1,12 @@
+---
+format: hypermake.v0
+
+targets:
+  build-nlohmann-json:
+    description: build github.com/nlohmann/json
+    workdir: /_build
+    cmds:
+      - mkdir -p include
+      - wget -nv -O include/json.hpp https://github.com/nlohmann/json/releases/download/v2.0.2/json.hpp
+    artifacts:
+      - /_build/include/json.hpp

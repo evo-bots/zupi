@@ -1,0 +1,31 @@
+---
+format: hypermake.v0
+
+targets:
+  get-ffmpeg:
+    description: download ffmpeg library
+    after:
+      - toolchain
+    workdir: /_build
+    cmds:
+      - rm -fr src/ffmpeg
+      - mkdir -p src/ffmpeg
+      - curl -sSL https://ffmpeg.org/releases/ffmpeg-3.1.2.tar.xz | tar -C src/ffmpeg --strip-components=1 -Jx
+
+  build-ffmpeg:
+    description: build ffmpeg library
+    after:
+      - get-ffmpeg
+    workdir: /_build
+    env:
+      - MAKE_OPTS
+    cmds:
+      - rm -fr build/ffmpeg
+      - mkdir -p build/ffmpeg
+      - cd build/ffmpeg
+      - ../../src/ffmpeg/configure --disable-programs --disable-doc --disable-shared
+      - make $MAKE_OPTS
+      - make install DESTDIR=./_install
+      - mkdir -p $HMAKE_PROJECT_DIR/_build/include $HMAKE_PROJECT_DIR/_build/lib
+      - cp -rf _install/usr/local/include/* $HMAKE_PROJECT_DIR/_build/include/
+      - cp -rf _install/usr/local/lib/* $HMAKE_PROJECT_DIR/_build/lib/
