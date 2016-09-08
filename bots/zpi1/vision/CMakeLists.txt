@@ -14,7 +14,7 @@ find_library(SWRESAMPLE_LIB swresample)
 find_library(AVUTIL_LIB avutil)
 
 include_directories("inc" "$ENV{HMAKE_PROJECT_DIR}/_build/include")
-add_executable(zpi1-vision src/analyzer.cpp)
+add_executable(zpi1-vision src/analyzer.cpp src/app.cpp)
 set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD 11)
 set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(zpi1-vision -Wl,--start-group
@@ -25,5 +25,5 @@ target_link_libraries(zpi1-vision -Wl,--start-group
     ${AVCODEC_LIB}
     ${SWSCALE_LIB}
     ${SWRESAMPLE_LIB}
-    ${AVUTIL_LIB} 
+    ${AVUTIL_LIB}
     -Wl,--end-group)

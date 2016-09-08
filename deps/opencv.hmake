@@ -40,8 +40,10 @@ targets:
         ../../src/opencv
       - make $MAKE_OPTS
       - make install DESTDIR=./_install
-      - mkdir -p $HMAKE_PROJECT_DIR/_build/share $HMAKE_PROJECT_DIR/bin
+      - mkdir -p $HMAKE_PROJECT_DIR/_build/share $HMAKE_PROJECT_DIR/bin/opencv
       - cp -rf _install/usr/local/include/* $HMAKE_PROJECT_DIR/_build/include/
       - cp -rf _install/usr/local/lib/* $HMAKE_PROJECT_DIR/_build/lib/
       - cp -rf _install/usr/local/share/* $HMAKE_PROJECT_DIR/_build/share/
       - cp -rf _install/usr/local/bin/* $HMAKE_PROJECT_DIR/bin/
+      - cp -rf _install/usr/local/share/OpenCV/haarcascades $HMAKE_PROJECT_DIR/bin/opencv/
+      - cp -rf _install/usr/local/share/OpenCV/lbpcascades $HMAKE_PROJECT_DIR/bin/opencv/
