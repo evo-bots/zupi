@@ -1,0 +1,28 @@
+---
+format: hypermake.v0
+
+targets:
+  get-fido:
+    description: download fido source code
+    after:
+      - toolchain
+    workdir: /_build
+    cmds:
+      - rm -fr src/fido
+      - mkdir -p src/fido
+      - curl -sSL https://github.com/FidoProject/Fido/archive/0.0.4.tar.gz | tar -C src/fido --strip-components=1 -zx
+
+  build-fido:
+    description: build fido library
+    after:
+      - get-fido
+    workdir: /_build
+    env:
+      - MAKE_OPTS
+    cmds:
+      - rm -fr build/fido
+      - cp -rf src/fido build/
+      - cd build/fido
+      - make $MAKE_OPTS install DESTDIR=./_install
+      - cp -rf _install/usr/local/include/Fido $HMAKE_PROJECT_DIR/_build/include/
+      - cp -f _install/usr/local/lib/fido.a $HMAKE_PROJECT_DIR/_build/lib/libfido.a

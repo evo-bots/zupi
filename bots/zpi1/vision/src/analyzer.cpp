@@ -62,10 +62,10 @@ private:
     std::vector<Model*> models;
 };
 
-class DetectApp : public Application {
+class DetectApp : public zupi::Application {
 public:
     DetectApp(int argc, char** argv)
-        : Application(argc, argv) {
+        : zupi::Application(argc, argv) {
         if (m_argc < 2) {
             throw "Missing video source";
         }
@@ -74,6 +74,7 @@ public:
         }
     }
 
+protected:
     virtual int run() {
         Detector detector(exeDir());
         cv::Mat image;
@@ -97,6 +98,7 @@ public:
                 std::cout << j << std::endl;
             }
         }
+        return 0;
     }
 
 private:
@@ -104,10 +106,6 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    try {
-        DetectApp app(argc, argv);
-        return app.run();
-    } catch (const char *msg) {
-        std::cerr << msg << std::endl;
-    }
+    DetectApp app(argc, argv);
+    return app.main();
 }

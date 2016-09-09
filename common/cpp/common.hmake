@@ -1,0 +1,21 @@
+---
+format: hypermake.v0
+
+targets:
+  build-common-libzupi:
+    description: common C++ library for ZuPi components
+    after:
+      - build-cxxopts
+    watches:
+      - inc
+      - src
+      - CMakeList.txt
+      - /common/cmake
+      - /hack/build-cmake.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh common/cpp Release libzupi.a
+    artifacts:
+      - /_build/build/common/cpp/Release/libzupi.a
+      - /_build/lib/libzupi.a

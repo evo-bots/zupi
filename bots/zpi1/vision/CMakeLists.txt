@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 
+include(ZuPiCommon)
+
 project(zpi1-vision CXX)
 
-set(BUILD_SHARED_LIBRARIES OFF)
-
+find_library(COMMON_LIB zupi)
 find_package(OpenCV REQUIRED)
 find_library(AVDEVICE_LIB avdevice)
 find_library(AVFILTER_LIB avfilter)
@@ -13,11 +14,9 @@ find_library(SWSCALE_LIB swscale)
 find_library(SWRESAMPLE_LIB swresample)
 find_library(AVUTIL_LIB avutil)
 
-include_directories("inc" "$ENV{HMAKE_PROJECT_DIR}/_build/include")
-add_executable(zpi1-vision src/analyzer.cpp src/app.cpp)
-set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD 11)
-set_property(TARGET zpi1-vision PROPERTY CXX_STANDARD_REQUIRED ON)
+add_executable(zpi1-vision src/analyzer.cpp)
 target_link_libraries(zpi1-vision -Wl,--start-group
+    ${COMMON_LIB}
     ${OpenCV_LIBS}
     ${AVDEVICE_LIB}
     ${AVFILTER_LIB}

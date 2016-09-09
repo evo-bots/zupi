@@ -75,21 +75,19 @@ targets:
     after: &vision-deps
       - build-nlohmann-json
       - build-ffmpeg
+      - build-common-libzupi
     watches: &vision-src
       - vision/inc
       - vision/src
       - vision/CMakeLists.txt
-      - vision/cmake
-      - vision/build.sh
+      - /common/cmake
+      - /hack/build-cmake.sh
     env:
       - MAKE_OPTS
     cmds:
-      - vision/build.sh Release
-      - cp -f
-        $HMAKE_PROJECT_DIR/_build/build/vision/Release/zpi1-vision
-        $HMAKE_PROJECT_DIR/bin/
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh bots/zpi1/vision Release zpi1-vision
     artifacts:
-      - /_build/build/vision/Release/zpi1-vision
+      - /_build/build/bots/zpi1/vision/Release/zpi1-vision
       - /bin/zpi1-vision
 
   build-zpi1-vision-dbg:
@@ -99,6 +97,6 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - vision/build.sh Debug
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh bots/zpi1/vision Debug
     artifacts:
-      - /_build/build/vision/Debug/zpi1-vision
+      - /_build/build/bots/zpi1/vision/Debug/zpi1-vision

@@ -1,4 +1,5 @@
 bin/
+tmp/
 gen/
 node_modules/
 _build/

@@ -1,0 +1,25 @@
+---
+format: hypermake.v0
+
+name: smartcam1d
+description: Smart Camera 1D simulation and servo control learning
+
+targets:
+  build-smartcam1d:
+    description: build simulator and learning program
+    after:
+      - build-fido
+      - build-common-libzupi
+    watches:
+      - inc
+      - src
+      - CMakeList.txt
+      - /common/cmake
+      - /hack/build-cmake.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh sim/smartcam1d Release smartcam1d
+    artifacts:
+      - /_build/build/sim/smartcam1d/Release/smartcam1d
+      - /bin/smartcam1d
