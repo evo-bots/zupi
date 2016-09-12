@@ -1,0 +1,82 @@
+[
+    {
+        "action": "object",
+        "object": {
+            "id": "lt",
+            "type": "corner",
+            "loc": "lt",
+            "rect": {
+                "x":-10,
+                "y": 10,
+                "w": 0.1,
+                "h": 0.1
+            }
+        }
+    },
+    {
+        "action": "object",
+        "object": {
+            "id": "rt",
+            "type": "corner",
+            "loc": "rt",
+            "rect": {
+                "x": 10,
+                "y": 10,
+                "w": 0.1,
+                "h": 0.1
+            }
+        }
+    },
+    {
+        "action": "object",
+        "object": {
+            "id": "lb",
+            "type": "corner",
+            "loc": "lb",
+            "rect": {
+                "x": -10,
+                "y": -10,
+                "w": 0.1,
+                "h": 0.1
+            }
+        }
+    },
+    {
+        "action": "object",
+        "object": {
+            "id": "rb",
+            "type": "corner",
+            "loc": "rb",
+            "rect": {
+                "x": 10,
+                "y": -10,
+                "w": 0.1,
+                "h": 0.1
+            }
+        }
+    },
+    {
+        "action": "object",
+        "object": {
+            "id": "cam0",
+            "type": "camera",
+            "angle": 10,
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "radius": 1
+        }
+    }, {
+        "action": "object",
+        "object": {
+            "id": "o1",
+            "type": "dot",
+            "origin": {
+                "x": 1,
+                "y": 8
+            },
+            "radius": 0.5
+        }
+    }
+]

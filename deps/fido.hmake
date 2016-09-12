@@ -23,6 +23,7 @@ targets:
       - rm -fr build/fido
       - cp -rf src/fido build/
       - cd build/fido
+      - find src -name '*.cpp' -exec sed -i -r 's/std::cout/std::cerr/g' '{}' ';'
       - make $MAKE_OPTS install DESTDIR=./_install
       - cp -rf _install/usr/local/include/Fido $HMAKE_PROJECT_DIR/_build/include/
       - cp -f _install/usr/local/lib/fido.a $HMAKE_PROJECT_DIR/_build/lib/libfido.a

@@ -1,0 +1,36 @@
+---
+format: hypermake.v0
+
+targets:
+  get-cpp-netlib:
+    description: download cpp-netlib library
+    after:
+      - toolchain
+    workdir: /_build
+    cmds:
+      - rm -fr src/cpp-netlib && mkdir -p src/cpp-netlib
+      - curl -sSL http://downloads.cpp-netlib.org/0.12.0/cpp-netlib-0.12.0-final.tar.bz2 | tar -C src/cpp-netlib --strip-components=1 -jx
+
+  build-cpp-netlib:
+    description: build cpp-netlib library
+    after:
+      - get-cpp-netlib
+      - build-boost
+    workdir: /_build
+    env:
+      - MAKE_OPTS
+    cmds:
+      - rm -fr build/cpp-netlib && mkdir -p build/cpp-netlib
+      - cd build/cpp-netlib
+      - cmake
+        -DBOOST_INCLUDEDIR=$HMAKE_PROJECT_DIR/_build/include
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DCPP-NETLIB_BUILD_TESTS=OFF
+        -DCPP-NETLIB_BUILD_EXAMPLES=OFF
+        -DCPP-NETLIB_ENABLE_HTTPS=OFF
+        ../../src/cpp-netlib
+      - make $MAKE_OPTS
+      - make install DESTDIR=./_install
+      - cp -rf _install/usr/local/include/* $HMAKE_PROJECT_DIR/_build/include/
+      - cp -rf _install/usr/local/lib/* $HMAKE_PROJECT_DIR/_build/lib/

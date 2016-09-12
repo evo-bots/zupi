@@ -1,0 +1,26 @@
+{
+  "name": "visualizer",
+  "description": "Simulation Visualizer",
+  "version": "0.0.1",
+  "author": "EaseWay <easeway@gmail.com>",
+  "main": "./app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evo-bots/zupi"
+  },
+  "engines": {
+    "node": ">=4",
+    "npm": ">=2"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "bootstrap": "^3.3.7",
+    "debug": "2.2.0",
+    "express": "^4.14.0",
+    "jquery": "^3.1.0",
+    "js-class": "0.0.3",
+    "morgan": "^1.7.0",
+    "socket.io": "^1.4.8"
+  }
+}

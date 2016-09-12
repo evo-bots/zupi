@@ -1,0 +1,27 @@
+---
+format: hypermake.v0
+
+targets:
+  get-bzip2:
+    description: download bzip2 source
+    after:
+      - toolchain
+    workdir: /_build
+    cmds:
+      - rm -fr src/bzip2 && mkdir -p src/bzip2
+      - curl -sSL http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz | tar -C src/bzip2 --strip-components=1 -zx
+
+  build-bzip2:
+    description: build bzip2
+    after:
+      - get-bzip2
+    workdir: /_build
+    env:
+      - MAKE_OPTS
+    cmds:
+      - rm -fr build/bzip2 && cp -rf src/bzip2 build/
+      - cd build/bzip2
+      - make $MAKE_OPTS libbz2.a
+      - mkdir -p $HMAKE_PROJECT_DIR/_build/include $HMAKE_PROJECT_DIR/_build/lib
+      - cp -f bzlib.h $HMAKE_PROJECT_DIR/_build/include/
+      - cp -f libbz2.a $HMAKE_PROJECT_DIR/_build/lib/
