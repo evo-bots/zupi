@@ -17,7 +17,10 @@ public:
     App(int argc, char **argv)
         : Application(argc, argv) {
         options().add_options()
-            ("m,mode", "Run mode", cxxopts::value<string>()->default_value("cap"))
+            ("m,mode", "Run mode", cxxopts::value<string>()->default_value("sim"))
+            ("d,distance", "object distance in mm", cxxopts::value<int>()->default_value("2000"))
+            ("o,offset", "object offset in mm", cxxopts::value<int>()->default_value("50"))
+            ("a,angle", "camera angle in degrees to rotate", cxxopts::value<double>()->default_value("0"))
         ;
     }
 
@@ -46,27 +49,10 @@ int App::runCapture() {
     Camera1D cam;
     CaptureEnv1D cap(&cam);
 
-    // Let's generate a few positions
-    vector<Pos1D> objs;
-    objs.push_back(Pos1D(2000, 50));
-    objs.push_back(Pos1D(1500, 50));
-    objs.push_back(Pos1D(1500, 300));
-
-    for (auto it = objs.begin(); it != objs.end(); it ++) {
-        cout << "capturing " << it->distance << ", " << it->offset << ": ";
-        auto capPos = cap.capture(*it);
-        if (capPos.distance < 0) {
-            cout << "failed";
-        } else {
-            cout << capPos.offset;
-        }
-        cout << endl;
-    }
-
-    auto p = cap.angle(d2r(30)).capture(objs[0]);
-    cout << "rotate ccw 30: " << p.offset << ", " << p.distance << endl;
-    p = cap.angle(d2r(-30)).capture(objs[0]);
-    cout << "rotate  cw 30: " << p.offset << ", " << p.distance << endl;
+    Pos1D obj(options()["distance"].as<int>(), options()["offset"].as<int>());
+    auto p = cap.angle(d2r(options()["angle"].as<double>())).capture(obj);
+    json j = {{"distance", p.distance}, {"offset", p.offset}, {"in", cam.onFilm(p)}};
+    cout << j << endl;
 }
 
 bool captureState(const CaptureEnv1D &cap, const Pos1D& obj, Pos1D &p) {
@@ -88,20 +74,70 @@ bool captureState(const CaptureEnv1D &cap, const Pos1D& obj, Pos1D &p) {
 int App::runTrainer() {
     Camera1D cam;
     CaptureEnv1D cap(&cam);
-    Pos1D obj(2000, 100), p;
-    rl::FidoControlSystem learner(1, {-90}, {90}, 180);
+    Pos1D objs[] = {
+        Pos1D(2000, 100),
+        Pos1D(2000, -100),
+        Pos1D(2000, 200),
+        Pos1D(2000, -200),
+        Pos1D(2000, 50),
+        Pos1D(2000, 150),
+        Pos1D(2000, -150),
+        Pos1D(2000, 220),
+        Pos1D(2000, -220),
+        Pos1D(2000, -80),
+    };
+    Pos1D p;
+    rl::FidoControlSystem learner(1, {0}, {1}, 90);
 
-    captureState(cap, obj, p);
-    for (int i = 0; i < 30; i ++) {
-        cout << i << ". state: " << p.distance << ", offset: " << p.offset << endl;
-        rl::Action action = learner.chooseBoltzmanAction({p.distance}, 0.2);
-        cap.angle(d2r(action[0]));
-        //auto prevDist = p.distance;
-        captureState(cap, obj, p);
-        //auto reward = (prevDist - p.distance) * 2 / cap.camera()->film();
-        auto reward = (1 - p.distance * 2 / cap.camera()->film()) * 2 - 1;
-        cout << "    new angle: " << r2d(cap.angle()) << ", reward: " << reward << endl;
-        learner.applyReinforcementToLastAction(reward, {p.distance});
+    auto training = true;
+    captureState(cap, objs[0], p);
+    for (int i = 0; i < sizeof(objs)/sizeof(objs[0]); i ++) {
+        for (int j = 0; true; j ++) {
+            cout << i << "." << j << " state: " << p.distance
+                << ", offset: " << p.offset
+                << ", training: " << training
+                << endl;
+            //rl::Action action = training ?
+            //    learner.chooseBoltzmanActionDynamic({p.distance}) :
+            //    learner.chooseBoltzmanAction({p.distance}, 0.01);
+            rl::Action action = learner.chooseBoltzmanActionDynamic({p.distance});
+            auto d = (p.offset < 0 ? 90 : -90) * action[0];
+            cap.angle(d2r(d));
+            //auto prevDist = p.distance;
+            captureState(cap, objs[i], p);
+            //auto reward = (prevDist - p.distance) * 2 / cap.camera()->film();
+            auto reward = 1 - p.distance * 2 / cap.camera()->film();
+            cout << "    " << reward << " new angle: " << r2d(cap.angle())
+                << ", action: " << action[0]
+                << ", state: " << p.distance
+                << ", offset: " << p.offset
+                << endl;
+            if (reward >= 0.9) {
+                training = false;
+                cout << "GOAL ACHIEVED!!!" << endl;
+                break;
+            } else if (!training) {
+                training = true;
+                cout << "TRAINING" << endl;
+            }
+            learner.applyReinforcementToLastAction(reward, {p.distance});
+        }
+
+/*
+        cout << "Validation ..." << endl;
+        for (int j = 0; j < sizeof(objs)/sizeof(objs[0]); j ++) {
+            rl::Action action = learner.chooseBoltzmanAction({p.distance}, 0.01);
+            auto d = (p.offset < 0 ? 90 : -90) * action[0];
+            cap.angle(d2r(d));
+            captureState(cap, objs[j], p);
+            auto reward = 1 - p.distance * 2 / cap.camera()->film();
+            cout << j << " " << reward << " angle: " << r2d(cap.angle())
+                << ", action: " << action[0]
+                << ", state: " << p.distance
+                << ", offset: " << p.offset
+                << endl;
+        }
+*/
     }
 
     return 0;
@@ -136,7 +172,7 @@ int App::runSimulator() {
         }
 
         cerr << i << ". state: " << p.distance << ", offset: " << p.offset << endl;
-        rl::Action action = learner.chooseBoltzmanAction({p.offset}, 0.05);
+        rl::Action action = learner.chooseBoltzmanActionDynamic({p.offset});
         cap.angle(action[0] * M_PI / 2);
 
         json j;
@@ -147,7 +183,7 @@ int App::runSimulator() {
         //auto inFilm = captureState(cap, obj, p);
         //auto reward = inFilm ? (prevDist - p.distance) * 2 / cap.camera()->film() : -1;
         captureState(cap, obj, p);
-        auto reward = (1 - p.distance * 2 / cap.camera()->film()) * 2 - 1;
+        auto reward = 1 - p.distance * 2 / cap.camera()->film();
         cerr << "    new angle: " << r2d(cap.angle()) << ", offset: " << p.offset << ", reward: " << reward << endl;
 
         learner.applyReinforcementToLastAction(reward, {p.offset});
