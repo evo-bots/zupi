@@ -1,6 +1,7 @@
 bin/
 tmp/
 gen/
+out/
 node_modules/
 _build/
 .hmake

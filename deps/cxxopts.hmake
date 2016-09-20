@@ -4,9 +4,9 @@ format: hypermake.v0
 targets:
   build-cxxopts:
     description: build github.com/jarro2783/cxxopts
-    workdir: /_build
     cmds:
-      - mkdir -p include
-      - wget -nv -O include/cxxopts.hpp https://raw.githubusercontent.com/jarro2783/cxxopts/master/src/cxxopts.hpp
+      - mkdir -p $HMAKE_PROJECT_DIR/out/noarch/include
+      - wget -nv -O $HMAKE_PROJECT_DIR/out/noarch/include/cxxopts.hpp
+        https://raw.githubusercontent.com/jarro2783/cxxopts/master/src/cxxopts.hpp
     artifacts:
-      - /_build/include/cxxopts.hpp
+      - /out/noarch/include/cxxopts.hpp

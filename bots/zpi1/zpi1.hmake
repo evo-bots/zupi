@@ -52,30 +52,46 @@ targets:
       - robot/lib
       - robot/*.js
       - robot/package.json
-    workdir: /_build
+    workdir: /out
     cmds:
       - rm -f zpi1-robot-*.tgz
       - npm pack ../bots/zpi1/robot
 
-  build-zpi1-brain:
+  build-zpi1-brain-amd64:
     description: build zpi1 brain
     after:
       - gen-zpi1-go
       - deps-zpi1-go
     watches:
+      - /hack/build-go.sh
       - 'brain/**/**/*.go'
     workdir: brain
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-go.sh zpi1-brain ./zpi1-brain
+      - $HMAKE_PROJECT_DIR/hack/build-go.sh amd64 zpi1-brain ./zpi1-brain
     artifacts:
-      - /bin/zpi1-brain
+      - /out/amd64/bin/zpi1-brain
 
-  build-zpi1-vision:
+  build-zpi1-brain-armhf:
+    description: build zpi1 brain for armhf
+    after:
+      - gen-zpi1-go
+      - deps-zpi1-go
+    watches:
+      - /hack/build-go.sh
+      - 'brain/**/**/*.go'
+    workdir: brain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-go.sh armhf zpi1-brain ./zpi1-brain
+    artifacts:
+      - /out/armhf/bin/zpi1-brain
+
+  build-zpi1-vision-amd64:
     description: build zpi1 vision analyzer
-    after: &vision-deps
+    after:
       - build-nlohmann-json
-      - build-ffmpeg
-      - build-common-libzupi
+      - build-ffmpeg-amd64
+      - build-opencv-amd64
+      - build-common-libzupi-amd64
     watches: &vision-src
       - vision/inc
       - vision/src
@@ -85,18 +101,21 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh bots/zpi1/vision Release zpi1-vision
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh amd64 bots/zpi1/vision Release zpi1-vision
     artifacts:
-      - /_build/build/bots/zpi1/vision/Release/zpi1-vision
-      - /bin/zpi1-vision
+      - /out/amd64/bin/zpi1-vision
 
-  build-zpi1-vision-dbg:
-    description: build zpi1 vision analyzer DEBUG
-    after: *vision-deps
+  build-zpi1-vision-armhf:
+    description: build zpi1 vision analyzer for armhf
+    after:
+      - build-nlohmann-json
+      - build-ffmpeg-armhf
+      - build-opencv-armhf
+      - build-common-libzupi-armhf
     watches: *vision-src
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh bots/zpi1/vision Debug
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh armhf bots/zpi1/vision Release zpi1-vision
     artifacts:
-      - /_build/build/bots/zpi1/vision/Debug/zpi1-vision
+      - /out/armhf/bin/zpi1-vision

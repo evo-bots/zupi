@@ -6,24 +6,27 @@ targets:
     description: download zlib source
     after:
       - toolchain
-    workdir: /_build
     cmds:
-      - rm -fr src/zlib && mkdir -p src/zlib
-      - curl -sSL http://zlib.net/zlib-1.2.8.tar.gz | tar -C src/zlib --strip-components=1 -zx
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh zlib http://zlib.net/zlib-1.2.8.tar.gz
 
-  build-zlib:
+  build-zlib-amd64:
     description: build zlib
     after:
       - get-zlib
-    workdir: /_build
+    watches:
+      - zlib.build.sh
     env:
       - MAKE_OPTS
     cmds:
-      - rm -fr build/zlib && cp -rf src/zlib build/
-      - cd build/zlib
-      - ./configure --static
-      - make $MAKE_OPTS
-      - make install DESTDIR=./_install
-      - mkdir -p $HMAKE_PROJECT_DIR/_build/include $HMAKE_PROJECT_DIR/_build/lib
-      - cp -rf _install/usr/local/include/* $HMAKE_PROJECT_DIR/_build/include/
-      - cp -rf _install/usr/local/lib/* $HMAKE_PROJECT_DIR/_build/lib/
+      - $HMAKE_PROJECT_DIR/deps/zlib.build.sh amd64
+
+  build-zlib-armhf:
+    description: build zlib
+    after:
+      - get-zlib
+    watches:
+      - zlib.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/zlib.build.sh armhf

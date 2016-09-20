@@ -5,12 +5,12 @@ name: smartcam1d
 description: Smart Camera 1D simulation and servo control learning
 
 targets:
-  build-smartcam1d:
+  build-smartcam1d-amd64:
     description: build simulator and learning program
     after:
-      - build-fido
-      - build-common-libzupi
-    watches:
+      - build-fido-amd64
+      - build-common-libzupi-amd64
+    watches: &watches
       - inc
       - src
       - CMakeList.txt
@@ -19,7 +19,19 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh sim/smartcam1d Release smartcam1d
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh amd64 sim/smartcam1d Release smartcam1d
     artifacts:
-      - /_build/build/sim/smartcam1d/Release/smartcam1d
-      - /bin/smartcam1d
+      - /out/amd64/bin/smartcam1d
+
+  build-smartcam1d-armhf:
+    description: build simulator and learning program for armhf
+    after:
+      - build-fido-armhf
+      - build-common-libzupi-armhf
+    watches: *watches
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh armhf sim/smartcam1d Release smartcam1d
+    artifacts:
+      - /out/armhf/bin/smartcam1d

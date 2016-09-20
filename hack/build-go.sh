@@ -2,16 +2,50 @@
 
 set -ex
 
-OUT_BIN=$1
-OUT_DIR=$HMAKE_PROJECT_DIR/bin
-shift
+ARCH=$1
+OUT_BIN=$2
+test -n "$ARCH"
+test -n "$OUT_BIN"
+OUT_DIR=$HMAKE_PROJECT_DIR/out/$ARCH
 
-if [ -n "$GOOS$GOARCH" ]; then
-    OUT_DIR=$OUTDIR/$GOOS/$GOARCH
+shift; shift
+
+LDFLAGS=
+if [ -n "$RELEASE" ]; then
+    case "$RELEASE" in
+        y|yes|final) LDFLAGS="$LDFLAGS -X main.VersionSuffix=" ;;
+        *) LDFLAGS="$LDFLAGS -X main.VersionSuffix=-$RELEASE" ;;
+    esac
+else
+    suffix=$(git log -1 --format=%h || true)
+    if [ -n "$suffix" ]; then
+        test -z "$(git status --porcelain || true)" || suffix="${suffix}+"
+        LDFLAGS="$LDFLAGS -X main.VersionSuffix=-g${suffix}"
+    fi
 fi
 
-mkdir -p $OUT_DIR
-CGO_ENABLED=0 go build -o $OUT_DIR/$OUT_BIN \
+case "$ARCH" in
+    amd64)
+        export GOARCH=$ARCH
+    ;;
+    arm|armel)
+        export GOARCH=arm
+    ;;
+    armhf)
+        export GOARCH=arm
+        export GOARM=7
+    ;;
+    arm64)
+        export GOARCH=arm64
+    ;;
+    *)
+        echo Unknown ARCH=$ARCH >&2
+        exit 1
+    ;;
+esac
+
+mkdir -p $OUT_DIR/bin
+CGO_ENABLED=0 go build -o $OUT_DIR/bin/$OUT_BIN \
     -a -installsuffix netgo \
-    -ldflags "$GO_LDFLAGS -extldflags -static" \
+    -ldflags "$LDFLAGS $GO_LDFLAGS -extldflags -static" \
     $@

@@ -6,31 +6,31 @@ targets:
     description: download boost library
     after:
       - toolchain
-    workdir: /_build
     cmds:
-      - rm -fr src/boost && mkdir -p src/boost
-      - curl -sSL https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2 | tar -C src/boost --strip-components=1 -jx
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh boost https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2
 
-  build-boost:
+  build-boost-amd64:
     description: build boost library
     after:
       - get-boost
-      - build-zlib
-      - build-bzip2
-    workdir: /_build
+      - build-zlib-amd64
+      - build-bzip2-amd64
+    watches:
+      - boost.build.sh
     env:
       - B2_OPTS
     cmds:
-      - rm -fr build/boost && cp -fr src/boost build/
-      - cd build/boost
-      - ./bootstrap.sh --prefix=$HMAKE_PROJECT_DIR/_build
-      - ./bjam -a -q -d+2 $B2_OPTS
-        --without-python
-        variant=release link=static
-        install
-        -s ZLIB_BINARY=z
-        -s ZLIB_INCLUDE=$HMAKE_PROJECT_DIR/_build/include
-        -s ZLIB_LIBPATH=$HMAKE_PROJECT_DIR/_build/lib
-        -s BZIP2_BINARY=bz2
-        -s BZIP2_INCLUDE=$HMAKE_PROJECT_DIR/_build/include
-        -s BZIP2_LIBPATH=$HMAKE_PROJECT_DIR/_build/lib
+      - $HMAKE_PROJECT_DIR/deps/boost.build.sh amd64
+
+  build-boost-armhf:
+    description: build boost library for armhf
+    after:
+      - get-boost
+      - build-zlib-armhf
+      - build-bzip2-armhf
+    watches:
+      - boost.build.sh      
+    env:
+      - B2_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/boost.build.sh armhf

@@ -26,7 +26,7 @@ struct Result {
 class Detector {
 public:
     Detector(const ::std::string &baseDir) {
-        auto dir = baseDir + "/opencv/haarcascades/";
+        auto dir = baseDir + "../share/OpenCV/haarcascades/";
         models.push_back(new Model("face", dir + "haarcascade_frontalface_default.xml"));
         models.push_back(new Model("face", dir + "haarcascade_frontalface_alt.xml"));
         models.push_back(new Model("face", dir + "haarcascade_frontalface_alt2.xml"));
