@@ -17,9 +17,10 @@ targets:
       - /common/cmake
       - /hack/build-cmake.sh
     env:
+      - NO_CLEAN=y
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh amd64 sim/smartcam1d Release smartcam1d
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh amd64 sim/smartcam1d Debug smartcam1d
     artifacts:
       - /out/amd64/bin/smartcam1d
 

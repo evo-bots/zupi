@@ -1,9 +1,7 @@
-#ifndef _SIM_EVENTS_H
-#define _SIM_EVENTS_H
+#pragma once
 
 #include <string>
 #include "json.hpp"
-#include "common.h"
 
 namespace sim {
 
@@ -48,6 +46,15 @@ protected:
     json m_json;
 };
 
+class ResetAction {
+public:
+    ResetAction() : m_json({{"action", "reset"}}) { }
+    operator json() { return m_json; }
+
+protected:
+    json m_json;
+};
+
 class CornerObj : public ObjectBuilder {
 public:
     CornerObj(const ::std::string& loc, double x, double y, double size = 10)
@@ -79,5 +86,3 @@ public:
 };
 
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _COMMON_H
-#define _COMMON_H
+#pragma once
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -47,5 +46,3 @@ public:
 };
 
 }
-
-#endif

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "json.hpp"
-#include "app.h"
+#include "zupi/app.h"
 
 using json = nlohmann::json;
 

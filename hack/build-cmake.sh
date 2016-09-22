@@ -26,7 +26,7 @@ esac
 
 OUT_DIR=$HMAKE_PROJECT_DIR/out/$ARCH
 BLD_DIR=$HMAKE_PROJECT_DIR/_build/$ARCH/$PROJECT_DIR/$CMAKE_BUILD_TYPE
-rm -fr $BLD_DIR
+test -n "$NO_CLEAN" || rm -fr $BLD_DIR
 mkdir -p $BLD_DIR
 cd $BLD_DIR
 cmake $CMAKE_OPTS \

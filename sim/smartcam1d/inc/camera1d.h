@@ -1,5 +1,4 @@
-#ifndef _SIM_CAMERA1D_H
-#define _SIM_CAMERA1D_H
+#pragma once
 
 #include "servo.h"
 
@@ -86,5 +85,3 @@ private:
 };
 
 }
-
-#endif

@@ -1,7 +1,6 @@
-#ifndef _SIM_TIMELINE_H
-#define _SIM_TIMELINE_H
+#pragma once
 
-#include "common.h"
+#include "zupi/common.h"
 
 namespace sim {
 
@@ -36,5 +35,3 @@ private:
 };
 
 }
-
-#endif

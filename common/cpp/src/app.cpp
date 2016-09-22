@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <exception>
 #include <iostream>
-#include "app.h"
+#include "zupi/app.h"
 
 namespace zupi {
 

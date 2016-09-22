@@ -12,5 +12,9 @@ add_executable(smartcam1d
     src/timeline.cpp
     src/camera1d.cpp
     src/servo.cpp
+    src/capture.cpp
+    src/train.cpp
+    src/simulate.cpp
+    src/algo_fido.cpp
 )
-target_link_libraries(smartcam1d ${COMMON_LIB} ${FIDO_LIB})
+target_link_libraries(smartcam1d ${COMMON_LIB} ${FIDO_LIB} pthread)

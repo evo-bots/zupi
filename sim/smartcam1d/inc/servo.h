@@ -1,5 +1,4 @@
-#ifndef _SIM_SERVO_H
-#define _SIM_SERVO_H
+#pragma once
 
 #include "timeline.h"
 
@@ -45,5 +44,3 @@ private:
 };
 
 }
-
-#endif

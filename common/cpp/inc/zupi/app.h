@@ -1,5 +1,4 @@
-#ifndef _APP_H
-#define _APP_H
+#pragma once
 
 #include <string>
 #include "cxxopts.hpp"
@@ -12,6 +11,7 @@ public:
     virtual int main();
 
     ::cxxopts::Options& options() { return m_options; }
+    const ::cxxopts::OptionDetails opt(const ::std::string& name) const { return m_options[name]; }
 
     const ::std::string& name() const { return m_name; }
     const ::std::string& exeFile() const { return m_exeFile; }
@@ -30,5 +30,3 @@ private:
 };
 
 }
-
-#endif
