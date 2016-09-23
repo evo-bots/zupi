@@ -4,6 +4,7 @@
 #include <map>
 #include <mutex>
 #include <condition_variable>
+#include "json.hpp"
 #include "camera1d.h"
 #include "app.h"
 
@@ -17,6 +18,7 @@ struct TrainedModel : Advisor {
 };
 
 struct Learner : Advisor {
+    virtual int learnAction(State state) = 0;
     virtual void feedback(State state, double reward) = 0;
     virtual TrainedModel* model() = 0;
 };
@@ -57,15 +59,19 @@ public:
     virtual int run(LearnAlgorithm*);
 
 private:
+    ::sim::Camera1D m_cam;
+    ::sim::CaptureEnv1D m_cap;
     ::sim::Pos1D m_pos;
     ::std::mutex m_lock;
     ::std::condition_variable m_notifier;
 
     ::sim::Pos1D pos();
-    void adjustAndLearn(::sim::CaptureEnv1D& cap, Learner*, State& s);
+    double capture(State& s);
+    void adjust(Learner*, State& s, bool training);
     void handleInput();
-    void updateCam(::sim::CaptureEnv1D& cap);
+    void updateCam();
     void updatePos(double x, double y);
+    void updateObj(const ::nlohmann::json&);
     void wait();
     void notify();
 };

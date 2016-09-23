@@ -1,0 +1,33 @@
+.reward {
+    text-align: center;
+    line-height: 100%;
+}
+
+.reward-good {
+    color: green;
+}
+
+.reward-fair {
+    color: yellow;
+}
+
+.reward-bad {
+    color: red;
+}
+
+.training {
+
+}
+
+.training {
+    color: blue;
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% { opacity: 0.0; }
+}
+
+.trained {
+    color: green;
+}

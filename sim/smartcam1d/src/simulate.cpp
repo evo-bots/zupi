@@ -1,7 +1,6 @@
 #include <memory>
 #include <thread>
 #include <mutex>
-#include "json.hpp"
 #include "events.h"
 #include "simulate.h"
 #include "algo_fido.h"
@@ -64,15 +63,16 @@ bool captureState(const CaptureEnv1D &cap, const Pos1D& obj, State &p) {
 }
 
 SimulateModule::SimulateModule(App *app)
-: LearnModule("sim", app) {
+: LearnModule("sim", app), m_cap(&m_cam) {
+    options().add_options()
+        ("t,threshold", "good threshold", cxxopts::value<double>()->default_value("2"))
+    ;
 }
 
 int SimulateModule::run(LearnAlgorithm *algo) {
-    Camera1D cam;
-    CaptureEnv1D cap(&cam);
-
     m_pos.distance = opt("distance").as<double>();
     m_pos.offset = opt("offset").as<double>();
+    double threshold = opt("threshold").as<double>();
 
     json actions;
     actions.push_back(ResetAction());
@@ -80,7 +80,7 @@ int SimulateModule::run(LearnAlgorithm *algo) {
     actions.push_back(CornerObj("rt", 3000, 2000));
     actions.push_back(CornerObj("lb", -1000, -2000));
     actions.push_back(CornerObj("rb", 3000, -2000));
-    actions.push_back(CameraObj("cam0").angle(r2d(cap.angle())));
+    actions.push_back(CameraObj("cam0").angle(r2d(m_cap.angle())));
     actions.push_back(DotObj("obj0", m_pos.x(), m_pos.y()));
 
     cout << actions << endl; cout.flush();
@@ -89,17 +89,23 @@ int SimulateModule::run(LearnAlgorithm *algo) {
 
     thread input([this]() { handleInput(); });
 
+    bool training = true;
     while (true) {
         State s;
-        captureState(cap, pos(), s);
-        cerr << "CAP angle: " << r2d(cap.angle())
+        capture(s);
+        cerr << "CAP angle: " << r2d(m_cap.angle())
             << ", distance: " << s.distance
             << ", offset: " << s.offset
             << endl;
         cerr.flush();
-        if (s.distance >= 2) {
-            adjustAndLearn(cap, learner.get(), s);
+        bool good = s.distance < threshold;
+        if (!good) {
+            adjust(learner.get(), s, training);
+            if (s.distance >= threshold) {
+                training = true;
+            }
         } else {
+            training = false;
             wait();
         }
     }
@@ -112,17 +118,35 @@ Pos1D SimulateModule::pos() {
     return m_pos;
 }
 
-void SimulateModule::adjustAndLearn(CaptureEnv1D& cap, Learner *learner, State& s) {
-    cap.angle(d2r(learner->action(s)));
-    updateCam(cap);
-    captureState(cap, pos(), s);
-    auto reward = 1 - s.distance * 2 / cap.camera()->film();
-    cerr << "RECAP angle: " << r2d(cap.angle())
+double SimulateModule::capture(State &s) {
+    captureState(m_cap, pos(), s);
+    auto reward = 1 - s.distance * 2 / m_cap.camera()->film();
+    ostringstream str;
+    str << "angle: " << r2d(m_cap.angle())
+        << ", offset: " << s.offset;
+    json j;
+    j.push_back(RewardObj("reward0", reward).rect(-900, 1900, 160, 80));
+    j.push_back(LabelObj("state0", str.str()).rect(-700, 1900, 800, 80));
+    updateObj(j);
+    return reward;
+}
+
+void SimulateModule::adjust(Learner *learner, State& s, bool training) {
+    int angle = training ? learner->learnAction(s) : learner->action(s);
+    m_cap.angle(d2r(angle));
+    updateCam();
+    auto reward = capture(s);
+    cerr << "RECAP angle: " << r2d(m_cap.angle())
         << ", offset: " << s.offset
         << ", reward: " << reward
         << endl;
     cerr.flush();
-    learner->feedback(s, reward);
+    if (training) {
+        LabelObj obj("training", "Training");
+        updateObj(json({obj.rect(2700, 1900, 250, 80).style("training")}));
+        learner->feedback(s, reward);
+        updateObj(json({obj.content("Trained").style("trained")}));
+    }
 }
 
 void SimulateModule::handleInput() {
@@ -173,11 +197,10 @@ void SimulateModule::handleInput() {
     }
 }
 
-void SimulateModule::updateCam(CaptureEnv1D& cap) {
+void SimulateModule::updateCam() {
     json j;
-    j.push_back(CameraObj("cam0").angle(r2d(cap.angle())));
-    unique_lock<mutex> l(m_lock);
-    cout << j << endl; cout.flush();
+    j.push_back(CameraObj("cam0").angle(r2d(m_cap.angle())));
+    updateObj(j);
 }
 
 void SimulateModule::updatePos(double x, double y) {
@@ -186,6 +209,10 @@ void SimulateModule::updatePos(double x, double y) {
     m_pos.offset = y;
     json j;
     j.push_back(DotObj("obj0", m_pos.x(), m_pos.y()));
+    cout << j << endl; cout.flush();
+}
+
+void SimulateModule::updateObj(const json& j) {
     cout << j << endl; cout.flush();
 }
 

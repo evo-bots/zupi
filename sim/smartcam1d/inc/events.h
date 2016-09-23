@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <string>
 #include "json.hpp"
 
@@ -40,6 +41,21 @@ public:
         return *this;
     }
 
+    ObjectBuilder& loc(const ::std::string& loc) {
+        m_json["object"]["loc"] = loc;
+        return *this;
+    }
+
+    ObjectBuilder& style(const ::std::string& name) {
+        m_json["object"]["style"] = name;
+        return *this;
+    }
+
+    ObjectBuilder& styles(const ::std::vector<::std::string>& names) {
+        m_json["object"]["styles"] = names;
+        return *this;
+    }
+
     operator json() { return m_json; }
 
 protected:
@@ -59,8 +75,7 @@ class CornerObj : public ObjectBuilder {
 public:
     CornerObj(const ::std::string& loc, double x, double y, double size = 10)
     : ObjectBuilder(loc, "corner") {
-        m_json["object"]["loc"] = loc;
-        rect(x, y, size, size);
+        this->loc(loc).rect(x, y, size, size);
     }
 };
 
@@ -82,6 +97,28 @@ public:
     DotObj(const ::std::string &id, double x, double y, double radius = 30)
     : ObjectBuilder(id, "dot") {
         origin(x, y).radius(radius);
+    }
+};
+
+class RewardObj : public ObjectBuilder {
+public:
+    RewardObj(const ::std::string &id, double reward)
+    : ObjectBuilder(id, "reward") {
+        m_json["object"]["reward"] = reward;
+        rect(0, 0, 200, 120);
+    }
+};
+
+class LabelObj : public ObjectBuilder {
+public:
+    LabelObj(const ::std::string& id, const ::std::string& cnt)
+    : ObjectBuilder(id, "label") {
+        content(cnt);
+    }
+
+    LabelObj& content(const ::std::string& cnt) {
+        m_json["object"]["content"] = cnt;
+        return *this;
     }
 };
 

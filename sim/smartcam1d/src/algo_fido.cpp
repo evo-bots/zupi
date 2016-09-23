@@ -10,9 +10,14 @@ public:
     : m_learner(1, {0}, {1}, 90) {
     }
 
-    virtual int action(State s) {
+    virtual int learnAction(State s) {
         auto a = m_learner.chooseBoltzmanActionDynamic({s.distance});
-        return (int)round((s.offset < 0 ? 90 : -90) * a[0]);
+        return mapAction(s, a[0]);
+    }
+
+    virtual int action(State s) {
+        auto a = m_learner.chooseBestAction({s.distance});
+        return mapAction(s, a[0]);
     }
 
     virtual void feedback(State s, double reward) {
@@ -25,6 +30,10 @@ public:
 
 private:
     rl::FidoControlSystem m_learner;
+
+    static int mapAction(const State &s, double a) {
+        return (int)round((s.offset < 0 ? 90 : -90) * a);
+    }
 };
 
 FidoAlgorithm::FidoAlgorithm(LearnModule *m)

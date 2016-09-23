@@ -1,0 +1,7 @@
+---
+name: zupi
+visualizer:
+  stylesheets:
+    - styles.css
+  scripts:
+    - objects.js
