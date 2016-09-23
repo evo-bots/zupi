@@ -13,7 +13,7 @@ targets:
     watches: &watches
       - inc
       - src
-      - CMakeList.txt
+      - CMakeLists.txt
       - /common/cmake
       - /hack/build-cmake.sh
     env:

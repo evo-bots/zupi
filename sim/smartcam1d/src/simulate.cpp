@@ -87,7 +87,7 @@ int SimulateModule::run(LearnAlgorithm *algo) {
 
     unique_ptr<Learner> learner(algo->learner());
 
-    thread(handleInput);
+    thread input([this]() { handleInput(); });
 
     while (true) {
         State s;
@@ -126,35 +126,51 @@ void SimulateModule::adjustAndLearn(CaptureEnv1D& cap, Learner *learner, State& 
 }
 
 void SimulateModule::handleInput() {
-    cerr << "HANDLE INPUT" << endl;
     while (!cin.eof() && !cin.fail()) {
         string line;
-        json j;
         try {
             getline(cin, line);
-            cerr << ">> " << line << endl;
-
-            j = json::parse(line);
-            const string action = j["action"];
-            if (action != "click") {
-                continue;
-            }
-            auto pos = j["position"];
-            if (!pos.is_object()) {
-                continue;
-            }
-            if (!pos["x"].is_number() || !pos["y"].is_number()) {
-                continue;
+            auto j = json::parse(line);
+            if (!j.is_array()) {
+                if (j.is_object()) {
+                    j = {j};
+                } else {
+                    continue;
+                }
             }
 
-            updatePos(pos["x"], pos["y"]);
-            notify();
+            double x, y;
+            bool update = false;
+            for (auto& item : j) {
+                if (!item.is_object()) {
+                    continue;
+                }
+                const string action = item["action"];
+                if (action != "click") {
+                    continue;
+                }
+                auto pos = item["position"];
+                if (!pos.is_object()) {
+                    continue;
+                }
+                if (!pos["x"].is_number() || !pos["y"].is_number()) {
+                    continue;
+                }
+
+                x = pos["x"];
+                y = pos["y"];
+                update = true;
+            }
+
+            if (update) {
+                updatePos(x, y);
+                notify();
+            }
         } catch (const invalid_argument& e) {
             // ignored
             continue;
         }
     }
-    cerr << "INPUT CLOSED" << endl; cerr.flush();
 }
 
 void SimulateModule::updateCam(CaptureEnv1D& cap) {
@@ -162,7 +178,6 @@ void SimulateModule::updateCam(CaptureEnv1D& cap) {
     j.push_back(CameraObj("cam0").angle(r2d(cap.angle())));
     unique_lock<mutex> l(m_lock);
     cout << j << endl; cout.flush();
-    cerr << "<< " << j << endl; cerr.flush();
 }
 
 void SimulateModule::updatePos(double x, double y) {
@@ -172,7 +187,6 @@ void SimulateModule::updatePos(double x, double y) {
     json j;
     j.push_back(DotObj("obj0", m_pos.x(), m_pos.y()));
     cout << j << endl; cout.flush();
-    cerr << "<< " << j << endl; cerr.flush();
 }
 
 void SimulateModule::wait() {
