@@ -6,6 +6,9 @@ with Raspberry Pi (or compatible alternatives) on
 
 _NOTE: a lot of in-progress/early-stage work, lack of docs, tests, likely to break!_
 
+Looking for documents about the details, including hardware and software? Please
+visit the gitbook about this project [ZuPi Build Memo](https://easeway.gitbooks.io/zupi-build-memo/content/).
+
 ## Getting Started
 
 Linux is the only supported platform, however you can build from Mac/Windows,
