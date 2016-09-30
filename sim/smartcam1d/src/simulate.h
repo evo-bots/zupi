@@ -8,7 +8,15 @@
 #include "camera1d.h"
 #include "app.h"
 
-typedef ::sim::Pos1D State;
+struct State : public ::sim::Pos1D {
+    double angle;
+
+    State& operator = (const ::sim::Pos1D& p) {
+        distance = p.distance;
+        offset = p.offset;
+        return *this;
+    }
+};
 
 struct Advisor : ::zupi::Interface {
     virtual int action(State state) = 0;
@@ -84,3 +92,4 @@ public:
 };
 
 bool captureState(const ::sim::CaptureEnv1D&, const ::sim::Pos1D&, State&);
+void captureUpdateAngle(::sim::CaptureEnv1D&, const State&, double);

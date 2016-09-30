@@ -1,9 +1,13 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <chrono>
 #include "events.h"
 #include "simulate.h"
 #include "algo_fido.h"
+#include "algo_cust1.h"
+#include "algo_simpq.h"
+#include "algo_triangle.h"
 
 using namespace std;
 using namespace zupi;
@@ -13,6 +17,9 @@ using json = nlohmann::json;
 LearnModule::LearnModule(const ::std::string& name, App* app)
 : Module(name, app) {
     new FidoAlgorithm(this);
+    new Cust1Algorithm(this);
+    new SimpleQAlgorithm(this);
+    new TriangleAlgorithm(this);
 }
 
 LearnModule& LearnModule::addAlgorithm(const ::std::string& name, LearnAlgorithm* algo) {
@@ -48,6 +55,7 @@ LearnAlgorithm::LearnAlgorithm(const ::std::string& name, LearnModule *module) {
 
 bool captureState(const CaptureEnv1D &cap, const Pos1D& obj, State &p) {
     p = cap.capture(obj);
+    p.angle = r2d(cap.angle());
     if (!cap.camera()->onFilm(p)) {
         p.distance = cap.camera()->film()/2;
         if (p.offset < 0) {
@@ -60,6 +68,22 @@ bool captureState(const CaptureEnv1D &cap, const Pos1D& obj, State &p) {
         p.distance = std::abs(p.offset);
         return true;
     }
+}
+
+void captureUpdateAngle(CaptureEnv1D &cap, const State &s, double delta) {
+    double a = r2d(cap.angle());
+    if (s.offset < 0) {
+        a += delta;
+    } else {
+        a -= delta;
+    }
+    if (a > 90) {
+        a = 90;
+    }
+    if (a < -90) {
+        a = -90;
+    }
+    cap.angle(d2r(a));
 }
 
 SimulateModule::SimulateModule(App *app)
@@ -93,7 +117,7 @@ int SimulateModule::run(LearnAlgorithm *algo) {
     while (true) {
         State s;
         capture(s);
-        cerr << "CAP angle: " << r2d(m_cap.angle())
+        cerr << "CAP angle: " << s.angle
             << ", distance: " << s.distance
             << ", offset: " << s.offset
             << endl;
@@ -122,7 +146,7 @@ double SimulateModule::capture(State &s) {
     captureState(m_cap, pos(), s);
     auto reward = 1 - s.distance * 2 / m_cap.camera()->film();
     ostringstream str;
-    str << "angle: " << r2d(m_cap.angle())
+    str << "angle: " << s.angle
         << ", offset: " << s.offset;
     json j;
     j.push_back(RewardObj("reward0", reward).rect(-900, 1900, 160, 80));
@@ -132,11 +156,12 @@ double SimulateModule::capture(State &s) {
 }
 
 void SimulateModule::adjust(Learner *learner, State& s, bool training) {
-    int angle = training ? learner->learnAction(s) : learner->action(s);
-    m_cap.angle(d2r(angle));
+    captureUpdateAngle(m_cap, s, training ? learner->learnAction(s) : learner->action(s));
+    // simulate delay of cap adjust
+    this_thread::sleep_for(chrono::milliseconds(100));
     updateCam();
     auto reward = capture(s);
-    cerr << "RECAP angle: " << r2d(m_cap.angle())
+    cerr << "RECAP angle: " << s.angle
         << ", offset: " << s.offset
         << ", reward: " << reward
         << endl;
