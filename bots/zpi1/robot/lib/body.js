@@ -14,6 +14,22 @@ const IndicatorFast = 300;
 class Body {
     constructor(builder) {
         this._builder = builder;
+
+        if (process.argv.length > 2) {
+            let remote = process.argv[2].split(':');
+            this._offer = { host: remote[0] };
+            if (remote.length == 1) {
+                this._offer.port = BrainConnector.PORT;
+            } else {
+                this._offer.port = parseInt(remote[1]);
+                if (this._offer.port == NaN) {
+                    console.error("invalid port " + remote[1]);
+                    process.exit(1);
+                }
+            }
+        } else {
+            this._brainConn = new BrainConnector(NAME);
+        }
     }
 
     run() {
@@ -39,7 +55,6 @@ class Body {
         this._busDev = new tbus.BusDev(this._bus);
         this._port = new tbus.RemoteBusPort(this._busDev,
             tbus.SocketConnector(() => net.connect(this._offer.port, this._offer.host)));
-        this._brainConn = new BrainConnector(NAME);
         this._port
             .on('connected', () => {
                 log("connected");
@@ -49,19 +64,26 @@ class Body {
             })
             .on('error', (err) => {
                 log("connect error %s", err.message);
-                this._reset();
+                this._reset(err);
             })
             .on('disconnected', () => {
                 this._reset();
             });
-        this._brainConn.on('offer', (offer) => {
-            log("offer %s:%d", offer.host, offer.port);
-            this._offer = offer;
+        if (this._brainConn) {
+            this._brainConn.on('offer', (offer) => {
+                log("offer %s:%d", offer.host, offer.port);
+                this._offer = offer;
+                this._port.connect();
+                this._brainConn.stop();
+                this._indicatorFlash(IndicatorFast);
+            });
+            this._reset();
+        } else {
+            log("connect %s:%d", this._offer.host, this._offer.port);
+            this._logics.reset();
             this._port.connect();
-            this._brainConn.stop();
             this._indicatorFlash(IndicatorFast);
-        });
-        this._reset();
+        }
     }
 
     _startErr(err) {
@@ -78,9 +100,14 @@ class Body {
         this._indicatorFlash(IndicatorSlow);
     }
 
-    _reset() {
-        this._connectBrain();
-        this._logics.reset();
+    _reset(err) {
+        if (this._brainConn) {
+            this._connectBrain();
+            this._logics.reset();
+        } else {
+            log("terminate");
+            process.exit(err ? 1 : 0);
+        }
     }
 
     _indicatorFlash(delay) {

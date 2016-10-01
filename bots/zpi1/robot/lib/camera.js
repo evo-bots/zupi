@@ -3,6 +3,7 @@
 const spawn = require('child_process').spawn;
 const Logic = require('./logic.js');
 const CameraState = require('../gen/zupi/camera_pb.js').CameraState;
+const CameraSpec = require('../gen/zupi/camera_pb.js').CameraSpec;
 const RtspEndpoint = require('../gen/zupi/camera_pb.js').RtspEndpoint;
 
 class RtspCamera extends Logic {
@@ -12,7 +13,17 @@ class RtspCamera extends Logic {
     }
 
     getState(done) {
+        let spec = new CameraSpec();
+        // Raspberry Pi Camere V2 specs
+        // http://elinux.org/Rpi_Camera_Module#Technical_Parameters_.28v.2_board.29
+        spec.setSensorWidth(3.674);
+        spec.setSensorHeight(2.760);
+        spec.setFocal(3.04);
+        spec.setAperture(2.0);
+        spec.setPixelsX(320);
+        spec.setPixelsY(240);
         let state = new CameraState();
+        state.setSpec(spec);
         if (this.rtsp) {
             state.setMode(CameraState.Video);
             let endpoint = new RtspEndpoint();

@@ -10,14 +10,24 @@ message RtspEndpoint {
     uint32 port = 2;
 }
 
+message CameraSpec {
+    double sensor_width = 1;    // sensor width in mm
+    double sensor_height = 2;   // sensor height in mm
+    double focal = 3;           // lens focal in mm
+    double aperture = 4;        // lens aperture
+    uint32 pixels_x = 5;
+    uint32 pixels_y = 6;
+}
+
 message CameraState {
     enum Mode {
         Off     = 0;
         Video   = 1;
         Capture = 2;
     }
-    Mode mode = 1;
-    RtspEndpoint rtsp = 100;
+    Mode mode = 1;              // camera mode
+    CameraSpec spec = 10;       // current spec
+    RtspEndpoint rtsp = 100;    // rtsp information
 }
 
 service RtspCamera {

@@ -61,4 +61,6 @@ class BrainConnector extends EventEmitter {
     }
 }
 
+BrainConnector.PORT = PORT;
+
 module.exports = BrainConnector;

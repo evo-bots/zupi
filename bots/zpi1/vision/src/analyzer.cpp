@@ -26,11 +26,11 @@ struct Result {
 class Detector {
 public:
     Detector(const ::std::string &baseDir) {
-        auto dir = baseDir + "../share/OpenCV/haarcascades/";
+        auto dir = baseDir + "/../share/OpenCV/haarcascades/";
         models.push_back(new Model("face", dir + "haarcascade_frontalface_default.xml"));
-        models.push_back(new Model("face", dir + "haarcascade_frontalface_alt.xml"));
-        models.push_back(new Model("face", dir + "haarcascade_frontalface_alt2.xml"));
-        models.push_back(new Model("face", dir + "haarcascade_frontalface_alt_tree.xml"));
+        // models.push_back(new Model("face", dir + "haarcascade_frontalface_alt.xml"));
+        // models.push_back(new Model("face", dir + "haarcascade_frontalface_alt2.xml"));
+        // models.push_back(new Model("face", dir + "haarcascade_frontalface_alt_tree.xml"));
         models.push_back(new Model("face", dir + "haarcascade_profileface.xml"));
         models.push_back(new Model("smile", dir + "haarcascade_smile.xml"));
         models.push_back(new Model("body", dir + "haarcascade_fullbody.xml"));
@@ -88,7 +88,7 @@ protected:
             detector.Detect(image, objs);
             if (!objs.empty()) {
                 json j;
-                j["size"] = { {"x", image.rows}, {"y", image.cols} };
+                j["size"] = { {"w", image.rows}, {"h", image.cols} };
                 for (auto it = objs.begin(); it != objs.end(); it ++) {
                     j["objects"].push_back({
                         {"type", it->type},

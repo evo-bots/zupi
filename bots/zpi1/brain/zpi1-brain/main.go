@@ -1,9 +1,11 @@
 package main
 
 import (
-	"log"
+	"fmt"
 
-	"github.com/evo-bots/zupi/bots/zpi1/brain"
+	"github.com/codingbrain/clix.go/exts/bind"
+	"github.com/codingbrain/clix.go/exts/help"
+	"github.com/codingbrain/clix.go/term"
 )
 
 // Version is the release version
@@ -12,12 +14,22 @@ const Version = "0.0.1"
 // VersionSuffix is the suffix of version
 var VersionSuffix = "-dev"
 
+type versionCmd struct {
+}
+
+func (c *versionCmd) Execute(args []string) error {
+	fmt.Println(Version + VersionSuffix)
+	return nil
+}
+
 func main() {
-	br, err := brain.NewBrain()
-	if err == nil {
-		err = br.Run()
-	}
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
+	cliDef.
+		Use(term.NewExt()).
+		Use(bind.NewExt().
+			Bind(&brainCmd{}, "brain").
+			Bind(&connectCmd{}, "connect").
+			Bind(&versionCmd{}, "version")).
+		Use(help.NewExt()).
+		Parse().
+		Exec()
 }

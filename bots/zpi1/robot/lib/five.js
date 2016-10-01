@@ -25,8 +25,8 @@ class Builder {
                 right: new tbus.Motor(new five.Motor(five.Motor.SHIELD_CONFIGS.POLOLU_DRV8835_SHIELD.M2))
             },
             servos: {
-                pan: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 0})),
-                tilt: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 1}))
+                pan: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 0, offset: -25, center: true})),
+                tilt: new tbus.Servo(new five.Servo({controller: 'PCA9685', pin: 1, offset: -25, center: true}))
             },
             camera: new RtspCamera(),
             indicator: {}
@@ -44,7 +44,7 @@ class Builder {
         logics.reset = () => {
             logics.camera.off(()=>{});
             logics.servos.pan.fiveDev.center();
-            logics.servos.tilt.fiveDev.center();
+            logics.servos.tilt.fiveDev.to(160);
         };
 
         logics.connected = (socket) => {
