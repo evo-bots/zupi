@@ -88,7 +88,7 @@ protected:
             detector.Detect(image, objs);
             if (!objs.empty()) {
                 json j;
-                j["size"] = { {"w", image.rows}, {"h", image.cols} };
+                j["size"] = { {"w", image.cols}, {"h", image.rows} };
                 for (auto it = objs.begin(); it != objs.end(); it ++) {
                     j["objects"].push_back({
                         {"type", it->type},

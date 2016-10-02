@@ -48,7 +48,7 @@ func NewCamSupportLogic(ctrl Controller, sub <-chan VisionEvent) (*CamSupportLog
 		vertServo:       suppIf.VertServoCtl(),
 		horzAngle:       90, // initial horizontal cam position
 		vertAngle:       90, // initial vertical cam position
-		servoWaitWindow: 500 * time.Millisecond,
+		servoWaitWindow: 80 * time.Millisecond,
 	}
 
 	return l, nil
@@ -100,24 +100,30 @@ func (l *CamSupportLogic) processObjects(spec *zupi.CameraSpec, size Size, objec
 
 		midX := float64(maxObj.Range.X+(maxObj.Range.W>>1))*spec.SensorWidth/float64(size.W) - (spec.SensorWidth / 2)
 		midY := float64(maxObj.Range.Y+(maxObj.Range.H>>1))*spec.SensorHeight/float64(size.H) - (spec.SensorHeight / 2)
-		rotX := -int(math.Ceil(math.Atan2(midX, spec.Focal) / math.Pi * 180))
-		rotY := int(math.Ceil(math.Atan2(midY, spec.Focal) / math.Pi * 180))
 
-		l.logger.Debug("rotate", "mid-x", midX, "mid-y", midY, "x", rotX, "y", rotY)
 		servoMove := false
-		if rotX != 0 {
-			if a := updateAngle(l.horzAngle, rotX); a != l.horzAngle {
+		if math.Abs(midX) > spec.SensorWidth/20 {
+			d := 1
+			if midX > 0 {
+				d = -1
+			}
+			if a := updateAngle(l.horzAngle, d); a != l.horzAngle {
 				l.horzAngle = a
 				l.horzServo.MoveTo(a)
-				l.logger.Debug("horz servo", "angle", a)
+				l.logger.Debug("horz servo", "mid", midX, "angle", a)
 				servoMove = true
+				l.servoWaitUntil = time.Now().Add(160 * time.Millisecond)
 			}
 		}
-		if rotY != 0 {
-			if a := updateAngle(l.vertAngle, rotY); a != l.vertAngle {
+		if math.Abs(midY) > spec.SensorHeight/20 {
+			d := 1
+			if midY < 0 {
+				d = -1
+			}
+			if a := updateAngle(l.vertAngle, d); a != l.vertAngle {
 				l.vertAngle = a
 				l.vertServo.MoveTo(a)
-				l.logger.Debug("vert servo", "angle", a)
+				l.logger.Debug("vert servo", "mid", midY, "angle", a)
 				servoMove = true
 			}
 		}
