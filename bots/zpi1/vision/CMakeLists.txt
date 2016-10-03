@@ -14,7 +14,11 @@ find_library(SWSCALE_LIB swscale)
 find_library(SWRESAMPLE_LIB swresample)
 find_library(AVUTIL_LIB avutil)
 
-add_executable(zpi1-vision src/analyzer.cpp)
+add_executable(zpi1-vision
+    src/model.cpp
+    src/vision.cpp
+)
+
 target_link_libraries(zpi1-vision -Wl,--start-group
     ${COMMON_LIB}
     ${OpenCV_LIBS}
