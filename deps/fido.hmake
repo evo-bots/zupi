@@ -9,7 +9,7 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh fido https://github.com/FidoProject/Fido/archive/0.0.4.tar.gz
 
-  build-fido-amd64:
+  build-fido-[arch:amd64,armhf]:
     description: build fido library
     after:
       - get-fido
@@ -18,15 +18,4 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/fido.build.sh amd64
-
-  build-fido-armhf:
-    description: build fido library for armhf
-    after:
-      - get-fido
-    watches:
-      - fido.build.sh
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/fido.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/fido.build.sh $[arch]

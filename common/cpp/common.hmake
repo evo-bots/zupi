@@ -2,7 +2,7 @@
 format: hypermake.v0
 
 targets:
-  build-common-libzupi-amd64:
+  build-common-libzupi-[arch:amd64,armhf]:
     description: common C++ library for ZuPi components
     after:
       - build-cxxopts
@@ -15,23 +15,6 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh amd64 common/cpp Release libzupi.a
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh $[arch] common/cpp Release libzupi.a
     artifacts:
-      - /out/amd64/lib/libzupi.a
-
-  build-common-libzupi-armhf:
-    description: common C++ library for ZuPi components for armhf
-    after:
-      - build-cxxopts
-    watches:
-      - inc
-      - src
-      - CMakeList.txt
-      - /common/cmake
-      - /hack/build-cmake.sh
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh armhf common/cpp Release libzupi.a
-    artifacts:
-      - /out/armhf/lib/libzupi.a
+      - /out/$[arch]/lib/libzupi.a

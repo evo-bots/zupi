@@ -9,28 +9,15 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh boost https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2
 
-  build-boost-amd64:
+  build-boost-[arch:amd64,armhf]:
     description: build boost library
     after:
       - get-boost
-      - build-zlib-amd64
-      - build-bzip2-amd64
+      - build-zlib-$[arch]
+      - build-bzip2-$[arch]
     watches:
       - boost.build.sh
     env:
       - B2_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/boost.build.sh amd64
-
-  build-boost-armhf:
-    description: build boost library for armhf
-    after:
-      - get-boost
-      - build-zlib-armhf
-      - build-bzip2-armhf
-    watches:
-      - boost.build.sh      
-    env:
-      - B2_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/boost.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/boost.build.sh $[arch]

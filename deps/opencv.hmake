@@ -9,26 +9,14 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh opencv https://github.com/opencv/opencv/archive/3.1.0.tar.gz
 
-  build-opencv-amd64:
+  build-opencv-[arch:amd64,armhf]:
     description: build opencv library
     after:
-      - build-ffmpeg-amd64
+      - build-ffmpeg-$[arch]
       - get-opencv
     watches:
       - opencv.build.sh
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/opencv.build.sh amd64
-
-  build-opencv-armhf:
-    description: build opencv library for armhf
-    after:
-      - build-ffmpeg-armhf
-      - get-opencv
-    watches:
-      - opencv.build.sh
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/opencv.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/opencv.build.sh $[arch]

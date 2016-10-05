@@ -9,22 +9,12 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh cpp-netlib http://downloads.cpp-netlib.org/0.12.0/cpp-netlib-0.12.0-final.tar.bz2
 
-  build-cpp-netlib-amd64:
+  build-cpp-netlib-[arch:amd64,armhf]:
     description: build cpp-netlib library
     after:
       - get-cpp-netlib
-      - build-boost-amd64
+      - build-boost-$[arch]
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/cpp-netlib.build.sh amd64
-
-  build-cpp-netlib-armhf:
-    description: build cpp-netlib library for armhf
-    after:
-      - get-cpp-netlib
-      - build-boost-armhf
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/cpp-netlib.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/cpp-netlib.build.sh $[arch]

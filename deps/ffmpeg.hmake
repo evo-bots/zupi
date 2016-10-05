@@ -9,7 +9,7 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh ffmpeg https://ffmpeg.org/releases/ffmpeg-3.1.2.tar.xz
 
-  build-ffmpeg-amd64:
+  build-ffmpeg-[arch:amd64,armhf]:
     description: build ffmpeg library
     after:
       - get-ffmpeg
@@ -18,15 +18,4 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/ffmpeg.build.sh amd64
-
-  build-ffmpeg-armhf:
-    description: build ffmpeg library for armhf
-    after:
-      - get-ffmpeg
-    watches:
-      - ffmpeg.build.sh
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/ffmpeg.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/ffmpeg.build.sh $[arch]

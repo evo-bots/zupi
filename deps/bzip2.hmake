@@ -9,7 +9,7 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh bzip2 http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
 
-  build-bzip2-amd64:
+  build-bzip2-[arch:amd64,armhf]:
     description: build bzip2
     after:
       - get-bzip2
@@ -18,15 +18,4 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/bzip2.build.sh amd64
-
-  build-bzip2-armhf:
-    description: build bzip2 for armhf
-    after:
-      - get-bzip2
-    watches:
-      - bzip2.build.sh      
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/bzip2.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/bzip2.build.sh $[arch]

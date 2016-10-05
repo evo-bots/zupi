@@ -9,7 +9,7 @@ targets:
     cmds:
       - $HMAKE_PROJECT_DIR/hack/unpack-url.sh zlib http://zlib.net/zlib-1.2.8.tar.gz
 
-  build-zlib-amd64:
+  build-zlib-[arch:amd64,armhf]:
     description: build zlib
     after:
       - get-zlib
@@ -18,15 +18,4 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/deps/zlib.build.sh amd64
-
-  build-zlib-armhf:
-    description: build zlib
-    after:
-      - get-zlib
-    watches:
-      - zlib.build.sh
-    env:
-      - MAKE_OPTS
-    cmds:
-      - $HMAKE_PROJECT_DIR/deps/zlib.build.sh armhf
+      - $HMAKE_PROJECT_DIR/deps/zlib.build.sh $[arch]
