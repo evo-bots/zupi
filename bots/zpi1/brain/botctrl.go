@@ -126,6 +126,8 @@ func (c *BotCtrl) QueryInterface(out interface{}) error {
 		*out.(*RtspCamCtrlIf) = c
 	case *CamSupportCtrlIf:
 		*out.(*CamSupportCtrlIf) = c
+	case *Motor2WDCtrlIf:
+		*out.(*Motor2WDCtrlIf) = c
 	default:
 		return ErrUnknownControlInterface
 	}
@@ -150,4 +152,9 @@ func (c *BotCtrl) HorzServoCtl() *tbus.ServoCtl {
 // VertServoCtl implements CamSupportCtrlIf
 func (c *BotCtrl) VertServoCtl() *tbus.ServoCtl {
 	return c.camTilt
+}
+
+// Motors implements Motor2WDCtrlIf
+func (c *BotCtrl) Motors() (left, right *tbus.MotorCtl) {
+	return c.motors[0], c.motors[1]
 }

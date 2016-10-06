@@ -1,10 +1,12 @@
 package brain
 
 import (
+	"math/rand"
 	"net"
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	log "github.com/mgutz/logxi/v1"
 	tbus "github.com/robotalks/tbus/go/tbus"
@@ -33,6 +35,7 @@ func NewBrain() (*Brain, error) {
 // Run starts the listener
 func (b *Brain) Run() error {
 	b.logger.Info("listening", "addr", b.listener.Addr())
+	rand.Seed(int64(time.Now().Unix()))
 	go b.cast()
 	go b.host.Run()
 	for {

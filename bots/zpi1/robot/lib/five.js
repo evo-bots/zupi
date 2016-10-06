@@ -45,6 +45,8 @@ class Builder {
             logics.camera.off(()=>{});
             logics.servos.pan.fiveDev.center();
             logics.servos.tilt.fiveDev.to(160);
+            logics.motors.left.fiveDev.stop();
+            logics.motors.right.fiveDev.stop();
         };
 
         logics.connected = (socket) => {
