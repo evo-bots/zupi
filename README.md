@@ -1,5 +1,7 @@
 # ZuPi - Raspberry Pi on Zumo Robot
 
+**WORK IN PROGRESS**
+
 This repository contains the source code for ZuPi projects - the robots built
 with Raspberry Pi (or compatible alternatives) on
 [Zumo](https://www.pololu.com/category/129/zumo-robots-and-accessories) robot.
@@ -62,6 +64,30 @@ LOGXI=*=DBG zpi1-brain brain
 
 When the brain is connected, it will start controlling the robot...
 and enjoy!
+
+### Simulation
+
+Folder `sim/smartcam1d` contains the simulation code to experiment the controlling
+logic of moving the camera. It's easy to add/modify algorithms (see `algo_*.*` files).
+
+To build the code
+
+```
+hmake build-smartcam1d-amd64
+```
+
+You need `sim-ng` (see [Simulator](https://github.com/robotalks/simulator)) installed
+in `PATH`:
+
+```
+sim-ng vis -I sim/visualizer -- out/amd64/smartcam1d sim -l fido
+```
+
+Point your browser to `http://localhost:3500`, and you will see the object and camera.
+The reinforcement learning algorithm tries to move the camera to center the object.
+Once it centered the object, click on the screen to replace the object and let
+the algorithm center the object again.
+And you will see how fast the algorithm converges, or maybe never...
 
 ## References
 
