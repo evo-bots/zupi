@@ -1,0 +1,59 @@
+#banner {
+    width: 100%;
+    line-height: 36pt;
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    font-size: 16pt;
+}
+
+#title {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+#botname {
+    font-weight: bold;
+}
+
+.list table {
+    border: 0;
+    width: 100%;
+    font-family: monospace;
+    font-size: 16pt;
+}
+
+.list table tr {
+    line-height: 36pt;
+}
+
+.list table tr:nth-child(odd) {
+    background-color: white;
+}
+
+.list table tr:nth-child(even) {
+    background-color: #cef;
+}
+
+.list .status {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    width: 2em;
+}
+
+.list .name {
+    cursor: pointer;
+}
+
+.list .name span {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.list .status .connected {
+    color: blue;
+}
+
+.list .status .allowed {
+    color: green;
+}

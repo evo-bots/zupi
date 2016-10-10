@@ -15,6 +15,22 @@ func init() {
 				&flag.Command{
 					Name: "brain",
 					Desc: "Run as brain, waiting for robot to connect",
+					Options: []*flag.Option{
+						&flag.Option{
+							Name:    "name",
+							Alias:   []string{"N"},
+							Desc:    "Brain name",
+							Default: "zpi1",
+						},
+						&flag.Option{
+							Name:    "accept",
+							Alias:   []string{"a"},
+							Desc:    "Name of robot to accept",
+							Type:    "string",
+							List:    true,
+							Default: []string{"zpi1"},
+						},
+					},
 				},
 				&flag.Command{
 					Name:  "connect",
@@ -26,6 +42,17 @@ func init() {
 							Alias:   []string{"N"},
 							Desc:    "Robot name",
 							Default: "zpi1",
+						},
+						&flag.Option{
+							Name:    "port",
+							Alias:   []string{"P"},
+							Desc:    "Server listening port",
+							Type:    "integer",
+							Default: 80,
+						},
+						&flag.Option{
+							Name: "www-root",
+							Desc: "Root directory containing web content, for development only",
 						},
 					},
 					Arguments: []*flag.Option{

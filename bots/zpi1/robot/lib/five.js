@@ -47,6 +47,7 @@ class Builder {
             logics.servos.tilt.fiveDev.to(160);
             logics.motors.left.fiveDev.stop();
             logics.motors.right.fiveDev.stop();
+            logics.led.fiveDev.stop();
         };
 
         logics.connected = (socket) => {

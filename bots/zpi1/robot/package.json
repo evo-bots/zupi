@@ -14,12 +14,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "js-class": "0.0.2",
-    "google-protobuf": "robotalks/google-protobuf.js",
+    "js-class": "0.0.3",
     "debug": "2.2.0",
+    "google-protobuf": "robotalks/google-protobuf.js",
     "johnny-five": "0.9.62",
+    "nomnom": "1.8.1",
     "tbus": "0.0.1-dev4",
-    "tbus-five": "evo-bots/tbus-five"
+    "tbus-five": "robotalks/tbus-five"
   },
   "devDependencies": {
     "chai": "^3.5.0",

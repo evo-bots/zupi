@@ -1,0 +1,11 @@
+<div id="brains-list" class="list" *ngIf="M.brains.length > 0">
+<table>
+    <tr *ngFor="let b of M.brains">
+        <td class="status">
+            <span *ngIf="b.connected != null" class="glyphicon glyphicon-transfer connected"></span>
+            <span *ngIf="!b.connected && b.allowed" class="glyphicon glyphicon-ok allowed"></span>
+        </td>
+        <td class="name" (click)="onClick(b.name)"><span>{{b.name}}</span></td>
+    </tr>
+</table>
+<div>

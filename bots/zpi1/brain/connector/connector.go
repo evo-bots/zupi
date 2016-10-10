@@ -1,124 +1,185 @@
 package connector
 
 import (
-	"bytes"
-	"fmt"
-	"html/template"
-	"net"
 	"os"
-	"os/exec"
-	"time"
+	"os/signal"
 
-	"github.com/evo-bots/zupi/bots/zpi1/brain"
 	log "github.com/mgutz/logxi/v1"
 )
 
 var (
-	// DefaultInterval is the interval sending broadcast
-	DefaultInterval = time.Second
-
 	logger = log.New("brain-connector")
 )
 
+// Runner represents generic runnabler task
+type Runner interface {
+	Run() error
+}
+
 // Connector is brain-connector to connect to brain
 type Connector struct {
-	Name       string
-	Interval   time.Duration
-	AllowNames []string
-	Command    []string
+	Name    string
+	Brains  []string
+	Allowed []string
 
-	args []*template.Template
+	current Offer
+
+	events  chan interface{}
+	signals chan os.Signal
+
+	discoverer *Discoverer
+	botrunner  *RobotRunner
+	server     *Server
+}
+
+// Status is current connector status
+type Status struct {
+	Name    string   `json:"name"`
+	Brains  []string `json:"brains,omitempty"`
+	Allowed []string `json:"allowed,omitempty"`
+	Current *Offer   `json:"current,omitempty"`
 }
 
 // NewConnector creates a connector
-func NewConnector(name string, cmds []string) (*Connector, error) {
-	c := &Connector{
-		Name:       name,
-		Interval:   DefaultInterval,
-		AllowNames: []string{"*"},
-		Command:    cmds,
+func NewConnector(name string, port int, webRoot string, cmds []string) (c *Connector, err error) {
+	c = &Connector{
+		Name:    name,
+		Brains:  []string{"zpi1", "zpi1.dev", "zpi1.custom1", "zpi1.custom2"},
+		Allowed: []string{"zpi1", "zpi1.dev", "zpi1.custom1", "zpi1.custom2"},
+		events:  make(chan interface{}),
+		signals: make(chan os.Signal),
 	}
-
-	c.args = make([]*template.Template, len(c.Command))
-	for n, arg := range c.Command {
-		t, err := template.New("arg").Parse(arg)
-		if err != nil {
-			return nil, fmt.Errorf("parse arg[%d] failed: %s: %v", n, arg, err)
-		}
-		c.args[n] = t
+	c.discoverer = NewDiscoverer(c)
+	if c.botrunner, err = NewRobotRunner(c, cmds); err != nil {
+		return nil, err
 	}
-
-	return c, nil
+	if c.server, err = NewServer(c, port, webRoot); err != nil {
+		return nil, err
+	}
+	return c, err
 }
 
 // Run starts the connector
-func (c *Connector) Run() error {
-	bcastAddr := &net.UDPAddr{IP: net.IPv4bcast, Port: brain.Port}
-	conn, err := net.DialUDP("udp", nil, bcastAddr)
-	if err != nil {
-		return err
-	}
-	for {
-		conn.Write([]byte(c.Name))
-
-		conn.SetReadDeadline(time.Now().Add(c.Interval))
-		var data []byte
-		n, addr, err := conn.ReadFromUDP(data)
-		if err != nil {
-			log.Warn("Recv error", "err", err)
-			continue
+func (c *Connector) Run() (err error) {
+	c.startRunner(c.discoverer)
+	c.startRunner(c.botrunner)
+	c.startRunner(c.server)
+	signal.Notify(c.signals, os.Interrupt)
+	loop := true
+	for loop {
+		select {
+		case event, ok := <-c.events:
+			if !ok {
+				loop = false
+				break
+			}
+			switch v := event.(type) {
+			case *Offer:
+				c.handleOffer(v)
+			case *RobotExit:
+				c.handleBotExit(v)
+			case *request:
+				c.handleRequest(v)
+			case error:
+				// runner start error
+				err = v
+				loop = false
+			}
+		case <-c.signals:
+			loop = false
 		}
+	}
+	c.botrunner.Kill()
+	return
+}
 
-		name := string(data[:n])
-		allowed := false
-		for _, nm := range c.AllowNames {
-			if nm == "*" || nm == name {
-				allowed = true
+// Status retrieves the status
+func (c *Connector) Status() (s Status) {
+	s.Name = c.Name
+	s.Brains = c.Brains
+	s.Allowed = c.Allowed
+	offer := c.current
+	if c.running() {
+		s.Current = &offer
+	}
+	return
+}
+
+// Configure updates the configuration
+func (c *Connector) Configure(brains, allowed []string) error {
+	return c.request(func() error {
+		if brains != nil {
+			c.Brains = brains
+		}
+		c.Allowed = allowed
+		logger.Info("Configure", "brains", c.Brains, "allowed", c.Allowed)
+		if c.running() {
+			for _, name := range c.Allowed {
+				if name == c.current.Name {
+					return nil
+				}
+			}
+			logger.Info("Terminate Robot", "reason", "brain no longer allowed")
+			c.botrunner.Kill()
+		}
+		return nil
+	})
+}
+
+// Notify sends event to connector
+func (c *Connector) Notify(event interface{}) {
+	c.events <- event
+}
+
+func (c *Connector) startRunner(r Runner) {
+	go func() {
+		err := r.Run()
+		if err != nil {
+			c.events <- err
+		}
+	}()
+}
+
+func (c *Connector) running() bool {
+	return c.current.Name != ""
+}
+
+func (c *Connector) handleOffer(offer *Offer) {
+	if !c.running() {
+		for _, name := range c.Allowed {
+			if name == offer.Name {
+				logger.Info("Offer Accept", "offer", offer.String())
+				err := c.botrunner.Start(*offer)
+				if err == nil {
+					logger.Info("Robot Started")
+					c.current = *offer
+					c.discoverer.Enable(false)
+				} else {
+					logger.Error("Robot Start Error", "err", err)
+				}
 				break
 			}
 		}
-
-		if !allowed {
-			logger.Warn("Reject offer", "name", name, "from", addr)
-			continue
-		}
-
-		logger.Info("Accept offer", "name", name, "from", addr)
-
-		vars := map[string]interface{}{
-			"name":   c.Name,
-			"ip":     addr.IP,
-			"port":   addr.Port,
-			"remote": addr.String,
-		}
-
-		args := make([]string, len(c.args))
-		for n, t := range c.args {
-			var a bytes.Buffer
-			err = t.Execute(&a, vars)
-			if err != nil {
-				logger.Error("Arg error", "at", n, "arg", c.Command[n], "err", err)
-				break
-			}
-			args[n] = a.String()
-		}
-		if err != nil {
-			continue
-		}
-
-		logger.Info("Launch Robot", "cmd", args)
-
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Env = os.Environ()
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-
-		err = cmd.Run()
-		if err != nil {
-			logger.Error("Execution error", "cmd", cmd.Args, "err", err)
-		} else {
-			logger.Info("Robot terminated")
-		}
 	}
+}
+
+func (c *Connector) handleBotExit(e *RobotExit) {
+	logger.Info("Robot Exit", "name", c.current.Name, "err", e.Err)
+	c.current.Name = ""
+	c.discoverer.Enable(true)
+}
+
+func (c *Connector) handleRequest(req *request) {
+	req.errCh <- req.fn()
+}
+
+type request struct {
+	fn    func() error
+	errCh chan error
+}
+
+func (c *Connector) request(fn func() error) error {
+	req := &request{fn: fn, errCh: make(chan error)}
+	c.events <- req
+	return <-req.errCh
 }

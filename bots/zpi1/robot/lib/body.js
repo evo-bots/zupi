@@ -106,6 +106,7 @@ class Body {
             this._logics.reset();
         } else {
             log("terminate");
+            this._logics.reset();
             process.exit(err ? 1 : 0);
         }
     }

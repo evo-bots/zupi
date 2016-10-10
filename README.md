@@ -45,11 +45,12 @@ Deploy robot package
 ```
 hmake pack-zpi1-robot
 scp out/zpi1-robot-0.0.1.tgz pi@robot:/root/
+scp out/armhf/bin/zpi1-brain pi@robot:/usr/local/bin/
 ssh pi@robot
     tar zxf zpi1-robot-0.0.1.tgz
     cd package
     npm install  # this takes a while
-    DEBUG=* node app.js
+    DEBUG=* zpi1-brain conn -- node app.js connect '{{.host}}' -p '{{.port}}'
 ```
 
 Now the robot is looking for _brain_ (the controlling logic)...

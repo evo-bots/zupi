@@ -2,11 +2,13 @@
 
 set -ex
 
+. $(dirname $BASH_SOURCE)/functions.sh
+
 ARCH=$1
 OUT_BIN=$2
 test -n "$ARCH"
 test -n "$OUT_BIN"
-OUT_DIR=$HMAKE_PROJECT_DIR/out/$ARCH
+OUT_DIR=$OUT_BASE/$ARCH
 
 shift; shift
 

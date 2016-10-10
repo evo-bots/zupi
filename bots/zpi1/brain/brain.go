@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
@@ -17,19 +18,28 @@ const Port = 6565
 
 // Brain listens for robot connections
 type Brain struct {
+	Name   string
+	Accept []string
+
 	logger   log.Logger
 	listener net.Listener
 	host     *tbus.RemoteDeviceHost
 }
 
 // NewBrain creates a brain instance
-func NewBrain() (*Brain, error) {
+func NewBrain(name string, accept []string) (*Brain, error) {
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(Port))
 	if err != nil {
 		return nil, err
 	}
 	host := tbus.NewRemoteDeviceHost(listener)
-	return &Brain{logger: log.NewLogger(log.NewConcurrentWriter(os.Stderr), "zpi1.robot.brain"), host: host, listener: listener}, nil
+	return &Brain{
+		Name:     name,
+		Accept:   accept,
+		logger:   log.NewLogger(log.NewConcurrentWriter(os.Stderr), "zpi1.robot.brain"),
+		host:     host,
+		listener: listener,
+	}, nil
 }
 
 // Run starts the listener
@@ -46,7 +56,7 @@ func (b *Brain) Run() error {
 }
 
 func (b *Brain) cast() {
-	conn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: Port})
+	conn, err := net.ListenUDP("udp", &net.UDPAddr{Port: Port})
 	if err != nil {
 		b.logger.Error("listen broadcast failed", "err", err)
 		return
@@ -60,8 +70,19 @@ func (b *Brain) cast() {
 			return
 		}
 		name := string(msg[0:n])
-		b.logger.Info("offer", "name", name, "to", addr)
-		conn.WriteTo([]byte("brain"), addr)
+		accept := false
+		for _, a := range b.Accept {
+			if accept = a == name; !accept {
+				accept, _ = filepath.Match(a, name)
+			}
+			if accept {
+				break
+			}
+		}
+		if accept {
+			b.logger.Info("offer", "me", b.Name, "name", name, "to", addr)
+			conn.WriteTo([]byte(b.Name), addr)
+		}
 	}
 }
 

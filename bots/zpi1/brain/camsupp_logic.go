@@ -138,8 +138,8 @@ func (l *CamSupportLogic) dance() {
 		l.dancingState++
 	case 1:
 		<-l.dancingTimer.C
-		l.motorL.SetSpeed(-motorSpeed)
 		l.motorR.SetSpeed(motorSpeed)
+		l.motorL.SetSpeed(-motorSpeed)
 		l.dancingTimer.Reset(danceDuration)
 		l.dancingState++
 	case 2:

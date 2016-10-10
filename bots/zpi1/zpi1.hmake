@@ -15,13 +15,23 @@ targets:
     cmds:
       - gvt restore
 
-  deps-zpi1-node:
-    description: install npm packages
+  deps-zpi1-robot:
+    description: install npm packages for robot
     after:
       - toolchain
     watches:
       - robot/package.json
     workdir: robot
+    cmds:
+      - npm install
+
+  deps-zpi1-connector:
+    description: install npm packages for connector
+    after:
+      - toolchain
+    watches:
+      - brain/connector/www/package.json
+    workdir: brain/connector/www
     cmds:
       - npm install
 
@@ -44,8 +54,8 @@ targets:
       - mkdir -p robot/gen
       - tbus-proto-gen -lang=js -out=robot/gen -from=proto zupi
 
-  pack-zpi1-robot:
-    description: package zpi1 robot Node.js code
+  npm-pack-zpi1-robot:
+    description: package zpi1 robot as a neat npm package (no modules)
     after:
       - gen-zpi1-node
     watches:
@@ -57,17 +67,31 @@ targets:
       - rm -f zpi1-robot-*.tgz
       - npm pack ../bots/zpi1/robot
 
+  build-zpi1-robot-[arch:amd64,armhf]:
+    description: build zpi1 robot with modules
+    after:
+      - deps-zpi1-robot
+      - npm-pack-zpi1-robot
+    watches:
+      - /hack/build-nodejs.sh
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-nodejs.sh $[arch] zpi1-robot
+
   build-zpi1-brain-[arch:amd64,armhf]:
     description: build zpi1 brain
     after:
       - gen-zpi1-go
       - deps-zpi1-go
+      - deps-zpi1-connector
     watches:
       - /hack/build-go.sh
       - 'brain/**/**/*.go'
+      - brain/connector/www
     workdir: brain
     cmds:
       - $HMAKE_PROJECT_DIR/hack/build-go.sh $[arch] zpi1-brain ./zpi1-brain
+      - rice append -i github.com/evo-bots/zupi/bots/zpi1/brain/connector
+        --exec $HMAKE_PROJECT_DIR/out/$[arch]/bin/zpi1-brain
     artifacts:
       - /out/$[arch]/bin/zpi1-brain
 

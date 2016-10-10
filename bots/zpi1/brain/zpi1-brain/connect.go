@@ -5,11 +5,13 @@ import (
 )
 
 type connectCmd struct {
-	Name string
+	Name    string
+	Port    int
+	WebRoot string `n:"www-root"`
 }
 
 func (c *connectCmd) Execute(args []string) error {
-	connector, err := conn.NewConnector(c.Name, args)
+	connector, err := conn.NewConnector(c.Name, c.Port, c.WebRoot, args)
 	if err == nil {
 		err = connector.Run()
 	}
