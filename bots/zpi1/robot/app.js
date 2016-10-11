@@ -36,7 +36,7 @@ function runRobot(fn) {
 
 nomnom.script('zpi1-robot');
 nomnom.command('reset')
-    .callback(runRobot(() => robot.reset()))
+    .callback(runRobot(() => quit(0)))
     .help('Reset Robot');
 nomnom.command('connect')
     .option('host', {

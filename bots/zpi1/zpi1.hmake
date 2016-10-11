@@ -114,3 +114,29 @@ targets:
       - $HMAKE_PROJECT_DIR/hack/build-cmake.sh $[arch] bots/zpi1/vision Release zpi1-vision
     artifacts:
       - /out/$[arch]/bin/zpi1-vision
+
+  pack-zpi1-[arch:amd64,armhf]:
+    description: pack zpi1 into tarball
+    after:
+      - build-zpi1-robot-$[arch]
+      - build-zpi1-brain-$[arch]
+      - build-zpi1-vision-$[arch]
+    watches:
+      - pack.sh
+    cmds:
+      - ./pack.sh $[arch]
+    artifacts:
+      - /out/$[arch]/zpi1.tar.gz
+
+  deploy-zpi1-robot:
+    description: deploy zpi1 robot to pi
+    after:
+      - pack-zpi1-armhf
+    watches:
+      - /hack/deploy.sh
+    env:
+      - HOME=/tmp
+    volumes:
+      - '~/.ssh/id_rsa:/tmp/.ssh/id_rsa:ro'
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/deploy.sh armhf zpi1 pi@zpi1 zpi1-robot
