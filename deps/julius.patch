@@ -1,0 +1,15 @@
+--- a/configure	2016-09-11 20:02:11.000000000 -0700
++++ b/configure	2016-10-13 22:06:43.830435821 -0700
+@@ -4170,9 +4170,10 @@
+       ;;
+     *)
+       case $ac_arg in
+-      *\'*) ac_arg=`$as_echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
++      #*\'*) ac_arg=`$as_echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
++      --host=*) as_fn_append ac_sub_configure_args " '$ac_arg'" ;;
+       esac
+-      as_fn_append ac_sub_configure_args " '$ac_arg'" ;;
++      #as_fn_append ac_sub_configure_args " '$ac_arg'" ;;
+     esac
+   done
+

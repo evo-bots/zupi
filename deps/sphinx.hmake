@@ -1,0 +1,23 @@
+---
+format: hypermake.v0
+
+targets:
+  get-sphinx:
+    description: download sphinx library
+    after:
+      - toolchain
+    watches:
+      - sphinx.get.sh
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/sphinx.get.sh
+
+  build-sphinx-[arch:amd64,armhf]:
+    description: build sphinx library
+    after:
+      - get-sphinx
+    watches:
+      - sphinx.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/sphinx.build.sh $[arch]

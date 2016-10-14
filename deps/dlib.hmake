@@ -1,0 +1,21 @@
+---
+format: hypermake.v0
+
+targets:
+  get-dlib:
+    description: download dlib
+    after:
+      - toolchain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh dlib https://github.com/davisking/dlib/archive/v19.0.tar.gz
+
+  build-dlib-[arch:amd64,armhf]:
+    description: build dlib
+    after:
+      - get-dlib
+    watches:
+      - dlib.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/dlib.build.sh $[arch]
