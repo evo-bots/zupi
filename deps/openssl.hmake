@@ -1,0 +1,22 @@
+---
+format: hypermake.v0
+
+targets:
+  get-openssl:
+    description: download openssl source
+    after:
+      - toolchain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh openssl https://www.openssl.org/source/openssl-1.1.0b.tar.gz
+
+  build-openssl-[arch:amd64,armhf]:
+    description: build openssl
+    after:
+      - get-openssl
+      - build-zlib-$[arch]
+    watches:
+      - openssl.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/openssl.build.sh $[arch]

@@ -16,11 +16,11 @@ RUN echo 'deb http://emdebian.org/tools/debian/ jessie main' >/etc/apt/sources.l
         bison \
         flex \
         libx11-dev \
+        libgtk-3-dev \
+        libasound2-dev:amd64 libasound2-dev:armhf libasound2-dev:arm64 \
         crossbuild-essential-armhf \
-        crossbuild-essential-armel \
         crossbuild-essential-arm64 \
         gfortran-arm-linux-gnueabihf \
-        gfortran-arm-linux-gnueabi \
         gfortran-aarch64-linux-gnu && \
     apt-get -y clean && \
     curl -sSL https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz | tar -C /usr/local --strip-components=1 -zx && \

@@ -1,0 +1,41 @@
+--- a/cmake/OpenCVFindLibsVideo.cmake	2015-12-18 07:02:16.000000000 -0800
++++ b/cmake/OpenCVFindLibsVideo.cmake	2016-10-17 23:06:19.469787346 -0700
+@@ -205,22 +205,22 @@
+   if(WIN32 AND NOT ARM)
+     include("${OpenCV_SOURCE_DIR}/3rdparty/ffmpeg/ffmpeg.cmake")
+   elseif(UNIX)
+-    CHECK_MODULE(libavcodec HAVE_FFMPEG_CODEC)
+-    CHECK_MODULE(libavformat HAVE_FFMPEG_FORMAT)
+-    CHECK_MODULE(libavutil HAVE_FFMPEG_UTIL)
+-    CHECK_MODULE(libswscale HAVE_FFMPEG_SWSCALE)
+-    CHECK_MODULE(libavresample HAVE_FFMPEG_RESAMPLE)
+-
+-    CHECK_INCLUDE_FILE(libavformat/avformat.h HAVE_GENTOO_FFMPEG)
+-    CHECK_INCLUDE_FILE(ffmpeg/avformat.h HAVE_FFMPEG_FFMPEG)
+-    if(NOT HAVE_GENTOO_FFMPEG AND NOT HAVE_FFMPEG_FFMPEG)
+-      if(EXISTS /usr/include/ffmpeg/libavformat/avformat.h OR HAVE_FFMPEG_SWSCALE)
+-        set(HAVE_GENTOO_FFMPEG TRUE)
+-      endif()
+-    endif()
+-    if(HAVE_FFMPEG_CODEC AND HAVE_FFMPEG_FORMAT AND HAVE_FFMPEG_UTIL AND HAVE_FFMPEG_SWSCALE)
+-      set(HAVE_FFMPEG TRUE)
+-    endif()
++    # CHECK_MODULE(libavcodec HAVE_FFMPEG_CODEC)
++    # CHECK_MODULE(libavformat HAVE_FFMPEG_FORMAT)
++    # CHECK_MODULE(libavutil HAVE_FFMPEG_UTIL)
++    # CHECK_MODULE(libswscale HAVE_FFMPEG_SWSCALE)
++    # CHECK_MODULE(libavresample HAVE_FFMPEG_RESAMPLE)
++    #
++    # CHECK_INCLUDE_FILE(libavformat/avformat.h HAVE_GENTOO_FFMPEG)
++    # CHECK_INCLUDE_FILE(ffmpeg/avformat.h HAVE_FFMPEG_FFMPEG)
++    # if(NOT HAVE_GENTOO_FFMPEG AND NOT HAVE_FFMPEG_FFMPEG)
++    #   if(EXISTS /usr/include/ffmpeg/libavformat/avformat.h OR HAVE_FFMPEG_SWSCALE)
++    #     set(HAVE_GENTOO_FFMPEG TRUE)
++    #   endif()
++    # endif()
++    # if(HAVE_FFMPEG_CODEC AND HAVE_FFMPEG_FORMAT AND HAVE_FFMPEG_UTIL AND HAVE_FFMPEG_SWSCALE)
++    #   set(HAVE_FFMPEG TRUE)
++    # endif()
+ 
+     if(HAVE_FFMPEG)
+       # Find the bzip2 library because it is required on some systems

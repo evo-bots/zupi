@@ -16,6 +16,7 @@ targets:
       - get-opencv
     watches:
       - opencv.build.sh
+      - opencv.patch
     env:
       - MAKE_OPTS
     cmds:

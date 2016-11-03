@@ -1,0 +1,24 @@
+---
+format: hypermake.v0
+
+targets:
+  get-mosquitto:
+    description: download mosquitto source
+    after:
+      - toolchain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh mosquitto http://mosquitto.org/files/source/mosquitto-1.4.10.tar.gz
+
+  build-mosquitto-[arch:amd64,armhf]:
+    description: build mosquitto
+    after:
+      - get-mosquitto
+      - build-c-ares-$[arch]
+      - build-openssl-$[arch]
+      - build-libwebsockets-$[arch]
+    watches:
+      - mosquitto.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/mosquitto.build.sh $[arch]

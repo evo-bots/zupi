@@ -1,0 +1,22 @@
+---
+format: hypermake.v0
+
+targets:
+  get-libwebsockets:
+    description: download libwebsockets source
+    after:
+      - toolchain
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/unpack-url.sh libwebsockets https://github.com/warmcat/libwebsockets/archive/v2.1.0.tar.gz
+
+  build-libwebsockets-[arch:amd64,armhf]:
+    description: build libwebsockets
+    after:
+      - get-libwebsockets
+      - build-openssl-$[arch]
+    watches:
+      - libwebsockets.build.sh
+    env:
+      - MAKE_OPTS
+    cmds:
+      - $HMAKE_PROJECT_DIR/deps/libwebsockets.build.sh $[arch]

@@ -15,8 +15,10 @@ if [ "$ARCH" == "armhf" ]; then
 fi
 
 rm -fr $BLD_DIR
-mkdir -p $BLD_DIR
+mkdir -p $(dirname $BLD_DIR)
+cp -rf $SRC_DIR $BLD_DIR
 cd $BLD_DIR
+patch -p1 < $HMAKE_PROJECT_DIR/deps/opencv.patch
 
 export PKG_CONFIG_PATH=$OUT_DIR/lib/pkgconfig
 cmake $CMAKE_OPTS \
@@ -41,7 +43,7 @@ cmake $CMAKE_OPTS \
     -DFFMPEG_RESAMPLE_LIB=$OUT_DIR/lib/libavresample.a \
     -DCMAKE_PREFIX_PATH=/usr/local \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
-    $SRC_DIR
+    .
 
 make $MAKE_OPTS
 make install DESTDIR=./_install
