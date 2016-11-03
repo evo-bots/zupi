@@ -111,7 +111,7 @@ targets:
     env:
       - MAKE_OPTS
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh $[arch] bots/zpi1/vision Release zpi1-vision
+      - $HMAKE_PROJECT_DIR/hack/build-cmake.sh $[arch] bots/zpi1/vision Release zpi1-vision zpi1-vision-perf
     artifacts:
       - /out/$[arch]/bin/zpi1-vision
 
@@ -128,15 +128,16 @@ targets:
     artifacts:
       - /out/$[arch]/zpi1.tar.gz
 
-  deploy-zpi1-robot:
-    description: deploy zpi1 robot to pi
+  deploy-zpi1-[type:robot,brain]:
+    description: deploy zpi1 robot/brain
     after:
       - pack-zpi1-armhf
     watches:
       - /hack/deploy.sh
     env:
       - HOME=/tmp
+      - HOST
     volumes:
       - '~/.ssh/id_rsa:/tmp/.ssh/id_rsa:ro'
     cmds:
-      - $HMAKE_PROJECT_DIR/hack/deploy.sh armhf zpi1 pi@zpi1 zpi1-robot
+      - $HMAKE_PROJECT_DIR/hack/deploy.sh armhf zpi1 pi@zpi1 zpi1-$[type]

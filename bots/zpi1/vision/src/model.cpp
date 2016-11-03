@@ -6,13 +6,17 @@ namespace vision {
 using namespace std;
 using namespace cv;
 
+nlohmann::json DetectedObject::json() const {
+    return nlohmann::json({
+        {"type", type},
+        {"range", { {"x", rc.x}, {"y", rc.y}, {"w", rc.width}, {"h", rc.height} } }
+    });
+}
+
 nlohmann::json DetectedObjectList::json() const {
     nlohmann::json j;
     for (auto& obj : *this) {
-        j.push_back({
-            {"type", obj.type},
-            {"range", { {"x", obj.rc.x}, {"y", obj.rc.y}, {"w", obj.rc.width}, {"h", obj.rc.height} } }
-        });
+        j.push_back(obj);
     }
     return j;
 }
@@ -26,7 +30,7 @@ DetectResult::DetectResult(Detector *detector, const Mat& image) {
 nlohmann::json DetectResult::json() const {
     return nlohmann::json({
         {"size", { {"w", size.width}, {"h", size.height} }},
-        {"objects", objects.json()},
+        {"objects", objects},
     });
 }
 

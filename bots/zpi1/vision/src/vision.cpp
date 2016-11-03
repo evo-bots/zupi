@@ -1,87 +1,114 @@
 #include <iostream>
-#include "vision.h"
+#include <opencv2/highgui/highgui.hpp>
 #include "zupi/app.h"
+#include "face_detector.h"
 
 using namespace std;
 using namespace cv;
 using namespace zupi;
 using namespace vision;
 
-class Analyzer : public Detector {
+class Capture {
 public:
-    Analyzer(const string& dir)
-    : m_smile("smile", dir + "haarcascade_smile.xml"),
-      m_face_def("face", dir + "haarcascade_frontalface_default.xml"),
-      m_face_alt("face", dir + "haarcascade_frontalface_alt.xml"),
-      m_face_alt2("face", dir + "haarcascade_frontalface_alt.xml"),
-      m_face_pro("face", dir + "haarcascade_profileface.xml"),
-      m_body_full("body", dir + "haarcascade_fullbody.xml"),
-      m_body_upper("body", dir + "haarcascade_upperbody.xml"),
-      m_body_lower("body", dir + "haarcascade_lowerbody.xml") {
-        m_faces.add(&m_face_def); m_face_def.add(&m_smile);
-        m_faces.add(&m_face_alt); m_face_alt.add(&m_smile);
-        m_faces.add(&m_face_alt2); m_face_alt2.add(&m_smile);
-        m_faces.add(&m_face_pro);
-        m_bodies.add(&m_body_full);
-        m_bodies.add(&m_body_upper);
-        m_bodies.add(&m_body_lower);
-        m_models.add(&m_faces);
-        m_models.add(&m_bodies);
+    Capture(const string& source)
+    : m_source(source), m_opened(false) {
     }
 
-    size_t detect(const Mat& image, DetectedObjectList& objects) {
-        return m_models.detect(image, objects);
+    bool opened() const { return m_opened; }
+
+    virtual bool read(Mat& m) = 0;
+
+protected:
+    string m_source;
+    bool m_opened;
+};
+
+class StreamCapture : public Capture {
+public:
+    StreamCapture(const string& source)
+    : Capture(source) {
+        m_opened = m_cap.open(source);
     }
 
-    DetectResult detect(const Mat& image) {
-        return move(DetectResult(this, image));
+    bool read(Mat& m) {
+        return m_cap.read(m);
     }
+
 private:
-    MultiModel m_models;
-    AltModel m_faces;
-    AltModel m_bodies;
-    ClassifyModel m_smile;
-    ClassifyModel m_face_def;
-    ClassifyModel m_face_alt;
-    ClassifyModel m_face_alt2;
-    ClassifyModel m_face_pro;
-    ClassifyModel m_body_full;
-    ClassifyModel m_body_upper;
-    ClassifyModel m_body_lower;
+    VideoCapture m_cap;
+};
+
+class StillCapture : public Capture {
+public:
+    StillCapture(const string& source)
+    : Capture(source) {
+        m_opened = true;
+    }
+
+    bool read(Mat& m) {
+        cv::VideoCapture vcap(m_source);
+        if (vcap.isOpened()) {
+            return vcap.read(m);
+        }
+        return false;
+    }
 };
 
 class App : public zupi::Application {
 public:
     App(int argc, char** argv)
         : zupi::Application(argc, argv) {
-        if (m_argc < 2) {
-            throw "Missing video source";
-        }
-        if (!m_vcap.open(m_argv[1])) {
-            throw "Error opening video stream or file";
-        }
+        options().add_options()
+            ("show", "show recognized area", cxxopts::value<bool>())
+            ("still", "use still instead of video", cxxopts::value<bool>())
+            ("source", "media source", cxxopts::value<string>())
+            ("args", "arguments for module", cxxopts::value<vector<string>>())
+        ;
+        options().parse_positional(vector<string>{"source", "args"});
     }
 
 protected:
     virtual int run() {
-        Analyzer analyzer(exeDir() + "/../share/OpenCV/haarcascades/");
+        bool still = opt("still").as<bool>();
+        bool show = opt("show").as<bool>();
+
+        auto source = opt("source").as<string>();
+        Capture *cap = still ? (Capture*)new StillCapture(source) : (Capture*)new StreamCapture(source);
+        if (!cap->opened()) {
+            cerr << "Error opening video stream or file" << endl;
+            return 1;
+        }
+
+        FaceDetector detector(exeDir() + "/../share/OpenCV/", true, 2, 1, 60);
         cv::Mat image;
 
+        if (show) {
+            namedWindow("zpi1-vision");
+        }
         while (true) {
-            if (!m_vcap.read(image)) {
+            if (!cap->read(image)) {
                 break;
             }
-            auto result = analyzer.detect(image);
+            DetectResult result(&detector, image);
             if (!result.empty()) {
                 cout << result.json() << endl;
                 cout.flush();
             }
+            if (show) {
+                for (auto& obj : result.objects) {
+                    rectangle(image, obj.rc, obj.type == "smile" ? Scalar(0, 255, 0) : Scalar(255, 0, 0));
+                }
+                imshow("zpi1-vision", image);
+                if (waitKey(500) >= 0) {
+                    return 0;
+                }
+            }
+        }
+        if (show) {
+            waitKey();
         }
         return 0;
     }
-
-private:
-    cv::VideoCapture m_vcap;
 };
 
 int main(int argc, char* argv[]) {

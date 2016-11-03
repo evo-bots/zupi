@@ -1,0 +1,19 @@
+Original Image: http://web.stanford.edu/class/ee368/Project_03/Project/TestImage.jpg
+Resized to 320x240
+
+zpi1-vision-perf analyzer test-image-320x240.jpg
+
+Mac Book Pro (i7 4-core):
+3,385,092 67,701
+
+Orange Pi Lite:
+36,646,583 732,931 ~0.55A
+
+Raspberry Pi 3:
+37,952,013 759,040 ~0.45A
+
+NanoPi M3:
+11,665,456 233,309 ~1.0A
+
+ODroid C2:
+15,627,679 312,553 ~0.67A

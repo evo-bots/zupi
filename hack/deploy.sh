@@ -6,11 +6,15 @@ set -ex
 
 ARCH="$1"
 PKG="$2"
-HOST="$3"
+test -n "$HOST" || HOST="$3"
 shift; shift; shift;
 
+if [ "${HOST%%@*}" != "root" ]; then
+    SUDO=sudo
+fi
+
 remote_sudo() {
-    ssh -o StrictHostKeyChecking=no "$HOST" sudo "$@"
+    ssh -o StrictHostKeyChecking=no "$HOST" $SUDO "$@"
 }
 
 cat $OUT_BASE/$ARCH/$PKG.tar.gz | remote_sudo tar -C / -zx

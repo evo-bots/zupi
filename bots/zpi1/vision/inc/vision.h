@@ -14,6 +14,9 @@ namespace vision {
 struct DetectedObject {
     ::cv::Rect rc;
     ::std::string type;
+
+    nlohmann::json json() const;
+    operator nlohmann::json() const { return json(); }
 };
 
 struct DetectedObjectList : public ::std::list<DetectedObject> {
@@ -39,8 +42,8 @@ private:
 class ClassifyModel : public Model {
 public:
     ClassifyModel(const ::std::string &type, const ::std::string &fn,
-        double scaleFactor = 1.3, int minNeighbors = 3,
-        int flags = CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH);
+        double scaleFactor = 1.1, int minNeighbors = 3,
+        int flags = 0);//CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH);
 
     double scaleFactor() const { return m_scaleFactor; }
     ClassifyModel& scaleFactor(double f) { m_scaleFactor = f; return *this; }

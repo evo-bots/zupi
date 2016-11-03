@@ -14,12 +14,7 @@ find_library(SWSCALE_LIB swscale)
 find_library(SWRESAMPLE_LIB swresample)
 find_library(AVUTIL_LIB avutil)
 
-add_executable(zpi1-vision
-    src/model.cpp
-    src/vision.cpp
-)
-
-target_link_libraries(zpi1-vision -Wl,--start-group
+set(VISION_LIBS
     ${COMMON_LIB}
     ${OpenCV_LIBS}
     ${AVDEVICE_LIB}
@@ -29,4 +24,17 @@ target_link_libraries(zpi1-vision -Wl,--start-group
     ${SWSCALE_LIB}
     ${SWRESAMPLE_LIB}
     ${AVUTIL_LIB}
-    -Wl,--end-group)
+)
+
+set(VISION_SRCS
+    src/model.cpp
+    src/analyzer.cpp
+    src/face_detector.cpp
+    src/detection.cpp
+)
+
+add_executable(zpi1-vision ${VISION_SRCS} src/vision.cpp)
+target_link_libraries(zpi1-vision -Wl,--start-group ${VISION_LIBS} -Wl,--end-group)
+
+add_executable(zpi1-vision-perf ${VISION_SRCS} src/perf.cpp)
+target_link_libraries(zpi1-vision-perf -Wl,--start-group ${VISION_LIBS} -Wl,--end-group)
