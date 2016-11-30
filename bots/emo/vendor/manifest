@@ -1,0 +1,147 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/MichaelTJones/walk",
+			"repository": "https://github.com/MichaelTJones/walk",
+			"revision": "4748e29d5718c2df4028a6543edf86fd8cc0f881",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/blackjack/webcam",
+			"repository": "https://github.com/blackjack/webcam",
+			"revision": "103f67083be008ccf451ab9c2e268fb219dc7354",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/codingbrain/clix.go",
+			"repository": "https://github.com/codingbrain/clix.go",
+			"revision": "61f1fdb545586f63b3f11592bc791c91379cc734",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/easeway/langx.go",
+			"repository": "https://github.com/easeway/langx.go",
+			"revision": "913a8e759859e9494f70f6bc8d6389699bdb5cd2",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/easeway/langx.go/errors",
+			"repository": "https://github.com/easeway/langx.go",
+			"revision": "913a8e759859e9494f70f6bc8d6389699bdb5cd2",
+			"branch": "master",
+			"path": "/errors"
+		},
+		{
+			"importpath": "github.com/eclipse/paho.mqtt.golang",
+			"repository": "https://github.com/eclipse/paho.mqtt.golang",
+			"revision": "13afcbe8e41508479762a90e9242577210c2ca8d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/howeyc/gopass",
+			"repository": "https://github.com/howeyc/gopass",
+			"revision": "f5387c492211eb133053880d23dfae62aa14123d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/hybridgroup/gobot",
+			"repository": "https://github.com/hybridgroup/gobot",
+			"revision": "0999c23207fe8cd7ffae1d18685110bd1d8bb226",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-colorable",
+			"repository": "https://github.com/mattn/go-colorable",
+			"revision": "d228849504861217f796da67fae4f6e347643f15",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-isatty",
+			"repository": "https://github.com/mattn/go-isatty",
+			"revision": "30a891c33c7cde7b02a981314b4228ec99380cca",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/ansi",
+			"repository": "https://github.com/mgutz/ansi",
+			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/logxi",
+			"repository": "https://github.com/mgutz/logxi",
+			"revision": "aebf8a7d67ab4625e0fd4a665766fef9a709161b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/minimist",
+			"repository": "https://github.com/mgutz/minimist",
+			"revision": "39eb8cf573ca29344bd7d7e6ba4d7febdebd37a9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/str",
+			"repository": "https://github.com/mgutz/str",
+			"revision": "968bf66e3da857419e4f6e71b2d5c9ae95682dc4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mgutz/to",
+			"repository": "https://github.com/mgutz/to",
+			"revision": "00c06406c2dd2e011f153a6502a21473676db33f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/nozzle/throttler",
+			"repository": "https://github.com/nozzle/throttler",
+			"revision": "d9b45f19996c645d38c9266d1f5cf1990e930119",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/robotalks/mqhub.go",
+			"repository": "https://github.com/robotalks/mqhub.go",
+			"revision": "7ae91b5d6f49fe3b4e1d92b27ecec8ebb455cd45",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/tarm/goserial",
+			"repository": "https://github.com/tarm/goserial",
+			"revision": "b3440c3c63556c3fd67e915be3b92195bc70294a",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "ede567c8e044a5913dad1d1af3696d9da953104c",
+			"branch": "master",
+			"path": "/ssh/terminal"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "4971afdc2f162e82d185353533d3cf16188a9f4e",
+			"branch": "master",
+			"path": "/websocket"
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"revision": "30237cf4eefd639b184d1f2cb77a581ea0be8947",
+			"branch": "master",
+			"path": "/unix"
+		},
+		{
+			"importpath": "gopkg.in/godo.v2",
+			"repository": "https://gopkg.in/godo.v2",
+			"revision": "b5fd2f0bef1ebe832e628cfad18ab1cc707f65a1",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"revision": "a5b47d31c556af34a302ce5d659e6fea44d90de0",
+			"branch": "v2"
+		}
+	]
+}

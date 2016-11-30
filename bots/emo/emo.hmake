@@ -1,0 +1,22 @@
+---
+format: hypermake.v0
+
+targets:
+  deps-emo:
+    description: restore Go vendor
+    after:
+      - toolchain
+    watches:
+      - vendor/manifest
+    cmds:
+      - gvt restore
+
+  build-emo-[cmd:bot]-[arch:amd64,armhf]:
+    description: build Emo robot emo-$[cmd] for $[arch]
+    after:
+      - deps-emo
+    watches:
+      - /hack/build-go.sh
+      - '**/**/*.go'
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/build-go.sh $[arch] emo-$[cmd] ./cmd/$[cmd]
