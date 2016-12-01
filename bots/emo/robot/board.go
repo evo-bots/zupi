@@ -75,7 +75,9 @@ func NewBoard(options *Options) *Board {
 func (b *Board) Start() error {
 	b.runningDevs = nil
 	errs := &errors.AggregatedError{}
+    logger.Info("Connect", "platform", "arduino")
 	errs.Add(Errs(b.arduino.Connect()))
+    logger.Info("Connect", "platform", "pi")
 	errs.Add(Errs(b.pi.Connect()))
 	if errs.Aggregate() == nil {
 		for _, comp := range b.Components() {

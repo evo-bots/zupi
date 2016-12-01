@@ -37,7 +37,12 @@ func NewMotor(b *Board, id string, pin, dirPin string) *Motor {
 
 // Start implements Device
 func (m *Motor) Start() error {
-	return Errs(m.driver.Start())
+	err := Errs(m.driver.Start())
+	if err == nil {
+		m.driver.Off()
+		m.state.Update(0)
+	}
+	return err
 }
 
 // Stop implements Device
@@ -49,13 +54,18 @@ func (m *Motor) speedMessage(msg mqhub.Message) mqhub.Future {
 	var ctl MotorCtl
 	err := msg.As(&ctl)
 	if err == nil {
+		speed := int(ctl.Speed)
 		switch {
 		case ctl.Speed == 0:
 			err = m.driver.Off()
 		case ctl.Reverse:
 			err = m.driver.Backward(ctl.Speed)
+			speed = -speed
 		default:
 			err = m.driver.Forward(ctl.Speed)
+		}
+		if err == nil {
+			m.state.Update(speed)
 		}
 	}
 	return &mqhub.ImmediateFuture{Error: err}
