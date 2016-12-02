@@ -20,3 +20,18 @@ targets:
       - '**/**/*.go'
     cmds:
       - $HMAKE_PROJECT_DIR/hack/build-go.sh $[arch] emo-$[cmd] ./cmd/$[cmd]
+
+  pack-emo-armhf:
+    description: pack for deployment
+    after:
+      - build-emo-bot-armhf
+      - build-mosquitto-armhf
+      - build-daemon-armhf
+      - build-minit-armhf
+    watches:
+      - /hack/pack-docker.sh
+      - pack
+    expose-docker: true
+    workdir: pack
+    cmds:
+      - $HMAKE_PROJECT_DIR/hack/pack-docker.sh emo armhf
