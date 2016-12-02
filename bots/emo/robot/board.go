@@ -1,6 +1,8 @@
 package robot
 
 import (
+	"time"
+
 	"github.com/easeway/langx.go/errors"
 	"github.com/hybridgroup/gobot/platforms/firmata"
 	"github.com/hybridgroup/gobot/platforms/raspi"
@@ -20,8 +22,11 @@ type Board struct {
 	Camera  *Camera
 	CamSupp *CameraSupport
 
-	arduino     *firmata.FirmataAdaptor
-	pi          *raspi.RaspiAdaptor
+	arduino *firmata.FirmataAdaptor
+	pi      *raspi.RaspiAdaptor
+	state   mqhub.DataPoint
+	event   mqhub.DataPoint
+
 	runningDevs []Device
 }
 
@@ -52,6 +57,8 @@ func NewBoard(options *Options) *Board {
 		Options: *options,
 		arduino: firmata.NewFirmataAdaptor("arduino", options.FirmataDevice),
 		pi:      raspi.NewRaspiAdaptor("pi"),
+		state:   mqhub.DataPoint{Name: "state", Retain: true},
+		event:   mqhub.DataPoint{Name: "event"},
 	}
 	b.Init(b, "robot")
 
@@ -71,13 +78,32 @@ func NewBoard(options *Options) *Board {
 	return b
 }
 
+// HACK: the first time firmata connect after cold boot never gets back
+
+func firmataConnect(adapter *firmata.FirmataAdaptor) error {
+	connCh := make(chan error)
+	go func() {
+		connCh <- Errs(adapter.Connect())
+	}()
+	select {
+	case e := <-connCh:
+		return e
+	case <-time.After(time.Second):
+		adapter.Disconnect()
+	}
+	// now reconnect
+	logger.Info("Reconnect", "platform", "arduino")
+	return Errs(adapter.Connect())
+}
+
 // Start implements Device
 func (b *Board) Start() error {
+	b.updateState("starting")
 	b.runningDevs = nil
 	errs := &errors.AggregatedError{}
-    logger.Info("Connect", "platform", "arduino")
-	errs.Add(Errs(b.arduino.Connect()))
-    logger.Info("Connect", "platform", "pi")
+	logger.Info("Connect", "platform", "arduino")
+	errs.Add(firmataConnect(b.arduino))
+	logger.Info("Connect", "platform", "pi")
 	errs.Add(Errs(b.pi.Connect()))
 	if errs.Aggregate() == nil {
 		for _, comp := range b.Components() {
@@ -91,11 +117,20 @@ func (b *Board) Start() error {
 			}
 		}
 	}
-	return errs.Aggregate()
+	err := errs.Aggregate()
+	if err != nil {
+		b.updateState("err:" + err.Error())
+	} else {
+		b.updateState("on")
+	}
+	return err
 }
 
 // Stop implements Device
 func (b *Board) Stop() error {
+	b.updateState("stopping")
+	defer b.updateState("off")
+
 	errs := &errors.AggregatedError{}
 	n := len(b.runningDevs)
 	for i := n - 1; i >= 0; i-- {
@@ -117,4 +152,9 @@ func (b *Board) Pi() *raspi.RaspiAdaptor {
 // MCP returns connection to micro-controller
 func (b *Board) MCP() *firmata.FirmataAdaptor {
 	return b.arduino
+}
+
+func (b *Board) updateState(s string) {
+	b.state.Update(s)
+	b.event.Update(s)
 }
