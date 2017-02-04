@@ -1,5 +1,10 @@
 # ZuPi - Raspberry Pi on Zumo Robot
 
+**END OF LIFE**
+
+The ZuPi project is leveraging [robotalks](https://github.com/robotalks) for
+zero-coding implementation.
+
 **WORK IN PROGRESS**
 
 This repository contains the source code for ZuPi projects - the robots built

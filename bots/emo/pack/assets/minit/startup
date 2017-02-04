@@ -1,3 +1,0 @@
-#!/bin/sh
-daemon -N -r -- /bin/mosquitto
-daemon -N -r -- /bin/emo-bot -i emo0

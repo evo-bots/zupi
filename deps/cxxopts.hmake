@@ -7,6 +7,6 @@ targets:
     cmds:
       - mkdir -p $HMAKE_PROJECT_DIR/out/noarch/include
       - wget -nv -O $HMAKE_PROJECT_DIR/out/noarch/include/cxxopts.hpp
-        https://raw.githubusercontent.com/jarro2783/cxxopts/master/src/cxxopts.hpp
+        https://raw.githubusercontent.com/jarro2783/cxxopts/master/include/cxxopts.hpp
     artifacts:
       - /out/noarch/include/cxxopts.hpp
